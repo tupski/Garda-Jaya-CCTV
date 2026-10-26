@@ -1,9 +1,9 @@
 # PRD — Garda Jaya CCTV Website & Admin CMS
 
 **Product:** Garda Jaya CCTV — business website + admin CMS
-**Document version:** v0.2
+**Document version:** v0.2.2
 **Date:** 2026-10-26
-**Status:** **Draft v0.2 — awaiting owner approval**
+**Status:** **Draft v0.2.2 — owner decisions recorded 2026-10-26; Phase 0 gate not yet passed**
 **Owner:** Garda Jaya CCTV (business owner)
 **Prepared by:** Documentation phase — no implementation performed
 **Supersedes:** v0.1 (Vercel + Next.js + Turso/libSQL target). See §1.4 and §13.7.
@@ -40,6 +40,7 @@ Draft v0.2 — awaiting owner approval. Every item marked **Proposed** or **Open
 | v0.1 | 2026-10-26 | Documentation phase | Initial draft: scope, requirement registers, persistence decisions, risks, open questions, phased delivery. Targeted Vercel + Next.js + Turso/libSQL. **Superseded by v0.2.** |
 | v0.2 | 2026-10-26 | Documentation phase | **Hosting switched from Vercel to Cloudflare Workers; DB from Turso/libSQL to D1; media from provider-agnostic to R2; framework re-evaluated.** Added §12.1–§12.9 (Workers runtime model + framework evaluation matrix), rewrote §13 for D1/R2 with a Confirmed/Proposed/Open decision log and a superseded-decisions register (§13.7), added `FR-180`–`FR-199`, `NFR-041`–`NFR-060`, `AC-061`–`AC-080`, `DEP-011`–`DEP-016`, `RISK-011`–`RISK-018`, `OQ-013`–`OQ-020`, `D-17`–`D-26`. No requirement was deleted or renumbered. |
 | v0.2.1 | 2026-10-26 | Documentation phase | **v0.2.1 — factual-accuracy corrections; no requirement scope change.** Re-verified the framework citations against the live Cloudflare documentation and the npm registry; replaced ellipsis citations with full URLs; re-sourced the `nodejs_compat` default claim to the compatibility-flags reference; removed bare re-assertions of volatile platform limits in favour of a single labelled source (§12.2); corrected FR cross-references in §12.9/§13, the `RISK-014` reference in §11.1, ISR vocabulary in §8.2 and `AC-043`/`AC-047`, the `NFR-019` change-record row, and the `.gitignore` contradiction in §2.6. No requirement was added, deleted, renumbered, or re-scoped. |
+| v0.2.2 | 2026-10-26 | Documentation phase | **Owner decisions recorded — no requirement scope change.** Recorded the owner's written answers of 2026-10-26 for `OQ-013` (Astro + `@astrojs/cloudflare`), `OQ-014` (pre-generated image variants), `OQ-015` (PBKDF2-SHA256 + app login only; benchmark and security audit still mandatory), `OQ-016` (D1 only, no KV), `OQ-018` (start Free; revisit before performance work), `OQ-019` (daily backup to R2, 7-day retention as initial default), `OQ-020` (custom admin shell + prepared SQL). Status cells in §13.4 and §17 moved to **Confirmed** for those rows only; `OQ-017` remains **Open**. **No §18.1.1 gate row was marked met** — recording a decision is not gate evidence. No requirement was added, deleted, renumbered, or re-scoped. |
 
 **Superseded decisions (v0.1 → v0.2), at a glance.** Full detail and rationale in §13.7.
 
@@ -1018,7 +1019,7 @@ The audit also suggested recasting candidate C entirely as `@opennextjs/cloudfla
 
 ### 12.9 Recommendation, runner-up and flip condition
 
-> **Recommendation: Astro + `@astrojs/cloudflare`. Status: Proposed — awaiting owner sign-off.** Not confirmed. No implementation may begin on it until the owner records the decision (`OQ-013`) and the §18.1 Phase 0 gate passes.
+> **Recommendation: Astro + `@astrojs/cloudflare`. Status: Confirmed by owner, 2026-10-26 (`OQ-013`).** The framework choice is settled. It does not by itself clear the §18.1 Phase 0 gate, which remains unmet in full.
 
 **Runner-up: React Router v8 framework mode + Cloudflare Vite plugin** (42 vs 43 — a one-point margin, well inside "defensible").
 
@@ -1203,28 +1204,28 @@ Status vocabulary: **Confirmed** = decided by the owner; **Proposed** = document
 | ID | Area | Leading option | Status | Owner action |
 |---|---|---|---|---|
 | D-01 | Runtime | **Cloudflare Workers** (V8 isolates / `workerd`), TypeScript | **Confirmed** (owner) | — |
-| D-02 | Framework | Astro + `@astrojs/cloudflare` (runner-up: React Router v8) — §12.9 | **Proposed** | Sign off (`OQ-013`) or choose runner-up |
+| D-02 | Framework | Astro + `@astrojs/cloudflare` (runner-up: React Router v8) — §12.9 | **Confirmed** (owner 2026-10-26) | — |
 | D-03 | Hosting | **Cloudflare Workers** | **Confirmed** (owner) | — |
 | D-04 | Data model | SQLite-compatible relational schema | **Confirmed** | — |
 | D-05 | Local dev DB | Wrangler's local D1 via binding; **no `file:` URL in production config** | **Confirmed** (constraint) | — |
 | D-06 | Production DB | **Cloudflare D1** | **Confirmed** (owner) | — |
-| D-07 | ORM / query layer | Drizzle ORM with D1 driver, or plain prepared statements — not yet chosen | **Proposed** | Sign off after a spike (`OQ-020`) |
+| D-07 | ORM / query layer | Drizzle ORM with D1 driver, or plain prepared statements — not yet chosen | **Confirmed** (owner 2026-10-26) | — |
 | D-08 | Media storage | **Cloudflare R2** | **Confirmed** (owner) | — |
-| D-09 | Admin template | None selected — evaluation only (§7.10) | **Open** | Approve shortlist, then one template (`OQ-020`) |
+| D-09 | Admin template | None selected — evaluation only (§7.10) | **Confirmed** (owner 2026-10-26) | — |
 | D-10 | Auth library | Auth.js or vetted session library | **Proposed** | Sign off (`OQ-004`) |
 | D-11 | Rich text editor | Tiptap / Lexical / Markdown+preview | **Open** | Approve after trial (`OQ-005`) |
 | D-12 | Rich text storage | Sanitised HTML vs structured JSON | **Open** | Decide with editor choice (`OQ-005`) |
 | D-13 | ~~Vercel region~~ | **Superseded** — replaced by D-20 | **Superseded** | See §13.7 |
 | D-14 | Domain & DNS | Owner-provided domain, **zone on Cloudflare** | **Open** | Provide domain + account access (`OQ-017`) |
-| D-15 | Backups | Time Travel + scheduled `d1 export` to R2 | **Proposed** | Approve retention + RPO/RTO (`OQ-019`) |
+| D-15 | Backups | Time Travel + scheduled `d1 export` to R2 | **Confirmed** (owner 2026-10-26) | — |
 | D-16 | Analytics | None in MVP (optional privacy-friendly later) | **Open** | Confirm deferral (`OQ-012`) |
 | D-17 | ~~Next.js App Router~~ | **Superseded** — framework re-opened in §12.6 | **Superseded** | See §13.7 |
 | D-18 | ~~Turso (libSQL)~~ | **Superseded** — replaced by D-06 (D1) | **Superseded** | See §13.7 |
-| D-19 | Image optimisation on Workers | Cloudflare Images/Resizing (paid tiers) vs client-side pre-resize vs pre-generated variants | **Open** | Decide before P2; `sharp` is not an option (`OQ-014`) |
+| D-19 | Image optimisation on Workers | Cloudflare Images/Resizing (paid tiers) vs client-side pre-resize vs pre-generated variants | **Confirmed** (owner 2026-10-26) | — |
 | D-20 | D1 primary location / Workers placement | Closest to Indonesian users, measured not assumed | **Open** | Confirm after provisioning (`OQ-018`) |
-| D-21 | Password hashing algorithm | PBKDF2-SHA256 via Web Crypto (leading) vs Argon2id vs Workers-compatible scrypt | **Open** | Benchmark, then approve (`OQ-015`) |
-| D-22 | Admin access model | App login only, vs Cloudflare Access (Zero Trust) in front of `/admin`, vs both | **Open** | Decide tier/cost (`OQ-015`) |
-| D-23 | Workers plan tier | Free vs Paid — the two tiers differ by orders of magnitude on CPU budget and D1 capacity. **Documented figures: §12.2 (Workers CPU/memory) and §13.2.1 (D1 limits); do not restate them here.** | **Open** | Decide before launch (`OQ-018`, `RISK-016`) |
+| D-21 | Password hashing algorithm | PBKDF2-SHA256 via Web Crypto (leading) vs Argon2id vs Workers-compatible scrypt | **Confirmed** (owner 2026-10-26) | — |
+| D-22 | Admin access model | App login only, vs Cloudflare Access (Zero Trust) in front of `/admin`, vs both | **Confirmed** (owner 2026-10-26) | — |
+| D-23 | Workers plan tier | Free vs Paid — the two tiers differ by orders of magnitude on CPU budget and D1 capacity. **Documented figures: §12.2 (Workers CPU/memory) and §13.2.1 (D1 limits); do not restate them here.** | **Confirmed** (owner 2026-10-26) | — |
 | D-24 | R2 public delivery domain | Custom domain on the owner's zone (**required** for production) | **Open** | Provide hostname (`OQ-017`) |
 | D-25 | ~~Vercel Blob / Cloudinary media~~ | **Superseded** — replaced by D-08 (R2) | **Superseded** | See §13.7 |
 | D-26 | ~~ISR caching strategy~~ | **Superseded** — replaced by §12.4 | **Superseded** | See §13.7 |
@@ -1755,18 +1756,18 @@ Checklist: a search of the built client assets finds no API token, database iden
 | `OQ-011` | Approve **backup retention** and the RPO/RTO targets in `NFR-008`? | Data-loss exposure | Daily logical backup, 7-day retention; RPO 24 h / RTO 4 h |
 | `OQ-012` | Confirm **no analytics** in MVP, or approve a privacy-friendly option later? | Scope and privacy policy content | No analytics in MVP |
 
-**v0.2 additions (`OQ-013`–`OQ-020`).** None of these is answered. They are the blockers between this document and implementation (§18.1).
+**v0.2 additions (`OQ-013`–`OQ-020`).** `OQ-013`, `OQ-014`, `OQ-015`, `OQ-016`, `OQ-018`, `OQ-019` and `OQ-020` were answered in writing by the owner on 2026-10-26 and are recorded as **Confirmed** below. `OQ-017` remains **Open**. Recording an answer does not satisfy the §18.1.1 gate — see the status note there.
 
-| ID | Question | Why it matters | Default if unanswered |
-|---|---|---|---|
-| `OQ-013` | **Framework sign-off:** approve **Astro + `@astrojs/cloudflare`** (§12.9), or choose the runner-up **React Router v8**? | Everything downstream — scaffold, routing, admin shell, template compatibility — depends on it | **Blocked.** Do not scaffold either. No default is assumed |
-| `OQ-014` | **Image optimisation approach:** Cloudflare Images/Resizing (paid tiers), client-side pre-resize, external pre-generation, or ship originals? | Cost, CPU, upload UX, `srcset` strategy | Pre-generated variants only; no on-the-fly transformation (`D-19`) |
-| `OQ-015` | **Password hashing + admin access model:** PBKDF2-SHA256 vs Argon2id vs Workers scrypt; and is **Cloudflare Access (Zero Trust)** required in front of `/admin`, and at what tier/cost? | Auth security and feasibility under the CPU budget; cost of an extra gate | PBKDF2-SHA256 benchmarked first; app login only, Access deferred (`D-21`, `D-22`) |
-| `OQ-016` | Is a **KV namespace** permitted as a session/rate-limit store, or must D1 carry it? | KV is outside the approved scope but is the conventional Workers session store | **D1 only.** KV requires explicit approval; do not add it |
-| `OQ-017` | **Cloudflare account, zone and domain:** who owns the account, is the domain an active zone in it, and what hostname serves R2 media? | R2 custom domain requires the zone in the same account; DNS and TLS depend on it | Blocked for production delivery (`DEP-011`, `RISK-013`) |
-| `OQ-018` | **Workers plan tier** (Free vs Paid) and **D1 primary location**? | CPU budget and D1 capacity differ by orders of magnitude between tiers (documented in §12.2 and §13.2.1); latency to Indonesia | Assume **Free** for early development only; must be decided before performance work |
-| `OQ-019` | **D1 backup retention** and confirmation of the RPO ≤ 24 h / RTO ≤ 4 h *targets*? | Data-loss exposure; Time Travel window is 30 days Paid / 7 days Free | Daily export to R2, 7-day retention, targets accepted as targets only |
-| `OQ-020` | **Admin template choice** after the §7.10 licence gate, and the **ORM/query layer** (Drizzle vs prepared statements)? | Legal exposure, design consistency, migration tooling | Minimal custom admin shell; plain prepared statements with `batch()` |
+| ID | Question | Why it matters | Default if unanswered | Status |
+|---|---|---|---|---|
+| `OQ-013` | **Framework sign-off:** approve **Astro + `@astrojs/cloudflare`** (§12.9), or choose the runner-up **React Router v8**? | Everything downstream — scaffold, routing, admin shell, template compatibility — depends on it | **Blocked.** Do not scaffold either. No default is assumed | **Confirmed** (owner, 2026-10-26) — Astro + `@astrojs/cloudflare` |
+| `OQ-014` | **Image optimisation approach:** Cloudflare Images/Resizing (paid tiers), client-side pre-resize, external pre-generation, or ship originals? | Cost, CPU, upload UX, `srcset` strategy | Pre-generated variants only; no on-the-fly transformation (`D-19`) | **Confirmed** (owner, 2026-10-26) — pre-generated variants |
+| `OQ-015` | **Password hashing + admin access model:** PBKDF2-SHA256 vs Argon2id vs Workers scrypt; and is **Cloudflare Access (Zero Trust)** required in front of `/admin`, and at what tier/cost? | Auth security and feasibility under the CPU budget; cost of an extra gate | PBKDF2-SHA256 benchmarked first; app login only, Access deferred (`D-21`, `D-22`) | **Confirmed** (owner, 2026-10-26) — PBKDF2-SHA256 + app login only; **benchmark and security audit remain mandatory** |
+| `OQ-016` | Is a **KV namespace** permitted as a session/rate-limit store, or must D1 carry it? | KV is outside the approved scope but is the conventional Workers session store | **D1 only.** KV requires explicit approval; do not add it | **Confirmed** (owner, 2026-10-26) — D1 only, no KV |
+| `OQ-017` | **Cloudflare account, zone and domain:** who owns the account, is the domain an active zone in it, and what hostname serves R2 media? | R2 custom domain requires the zone in the same account; DNS and TLS depend on it | Blocked for production delivery (`DEP-011`, `RISK-013`) | **Open** — domain named as `cctv.artupski.com`; account/zone/zone-ownership unverified |
+| `OQ-018` | **Workers plan tier** (Free vs Paid) and **D1 primary location**? | CPU budget and D1 capacity differ by orders of magnitude between tiers (documented in §12.2 and §13.2.1); latency to Indonesia | Assume **Free** for early development only; must be decided before performance work | **Confirmed** (owner, 2026-10-26) — start Free; revisit before performance work. **D1 primary location still open** |
+| `OQ-019` | **D1 backup retention** and confirmation of the RPO ≤ 24 h / RTO ≤ 4 h *targets*? | Data-loss exposure; Time Travel window is 30 days Paid / 7 days Free | Daily export to R2, 7-day retention, targets accepted as targets only | **Confirmed** (owner, 2026-10-26) — daily backup to R2, 7-day retention as initial default |
+| `OQ-020` | **Admin template choice** after the §7.10 licence gate, and the **ORM/query layer** (Drizzle vs prepared statements)? | Legal exposure, design consistency, migration tooling | Minimal custom admin shell; plain prepared statements with `batch()` | **Confirmed** (owner, 2026-10-26) — custom admin shell + prepared SQL |
 
 ---
 
@@ -1798,9 +1799,11 @@ This is the gate referenced throughout `AGENTS.md`. It is deliberately hard: the
 | G0-6 | **Image strategy decided** — `OQ-014` resolved | Owner + implementer | ☐ Not met |
 | G0-7 | **Password strategy decided** — `OQ-015` resolved after a benchmark on the real runtime | Implementer proposes, owner approves | ☐ Not met |
 | G0-8 | **Workers plan tier decided** — `OQ-018` | Owner | ☐ Not met |
-| G0-9 | **PRD v0.2 approved as a document** (status moves off "Draft — awaiting owner approval") | Owner | ☐ Not met |
+| G0-9 | **PRD v0.2.2 approved as a document** (status moves off "Draft — awaiting owner approval") | Owner | ☐ Not met |
 
 The agent's obligation is simple: **if any row above is unchecked, do not scaffold, do not install a dependency, and do not provision a resource.** Ask, then wait.
+
+**Status note (2026-10-26).** The owner answered `OQ-013`, `OQ-014`, `OQ-015`, `OQ-016`, `OQ-018`, `OQ-019` and `OQ-020` in writing, and those answers are recorded as **Confirmed** in §13.4 and §17. **No row above is marked met on that basis.** Still outstanding: G0-1, G0-6 and G0-8 need the confirmed decision reflected in a document the owner has signed; G0-7 needs a PBKDF2-SHA256 benchmark on the real Workers runtime; G0-2 through G0-5 need owner-supplied verification evidence; G0-9 needs the owner to move the document status off "Draft". The gate therefore remains **0 of 9**, and implementation stays blocked under `AGENTS.md` §14.
 
 Note on ownership: G0-2 through G0-5 are marked "by the owner" on purpose. Creating Cloudflare resources is an owner action with billing and access consequences; an agent must not create accounts, zones, databases or buckets on the owner's behalf.
 
@@ -1823,4 +1826,4 @@ A phase is done only when: its requirements are implemented; the mapped `AC-###`
 
 ---
 
-*End of PRD v0.2 — awaiting owner approval. Nothing in this document authorises implementation until the §18.1.1 gate is met.*
+*End of PRD v0.2.2 — awaiting owner approval. Nothing in this document authorises implementation until the §18.1.1 gate is met.*

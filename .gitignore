@@ -1,1 +1,7 @@
-logo/Garda Jaya CCTV Logo Presentation.png
+0logo/Garda Jaya CCTV Logo Presentation.png
+.wrangler/
+.dev.vars
+.env*
+node_modules/
+dist/
+.astro/
