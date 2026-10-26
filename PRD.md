@@ -1,11 +1,12 @@
 # PRD — Garda Jaya CCTV Website & Admin CMS
 
 **Product:** Garda Jaya CCTV — business website + admin CMS
-**Document version:** v0.1
+**Document version:** v0.2
 **Date:** 2026-10-26
-**Status:** **Draft v0.1 — awaiting owner approval**
+**Status:** **Draft v0.2 — awaiting owner approval**
 **Owner:** Garda Jaya CCTV (business owner)
 **Prepared by:** Documentation phase — no implementation performed
+**Supersedes:** v0.1 (Vercel + Next.js + Turso/libSQL target). See §1.4 and §13.7.
 
 ---
 
@@ -19,7 +20,9 @@ This PRD is **documentation only**. No application code, dependency, schema, or 
 
 ### 1.2 Status
 
-Draft v0.1. Every item marked **Proposed** or **Open** (see the §13.4 decision table and §17) requires the owner's explicit sign-off before implementation. Items marked **Confirmed** reflect decisions already given by the owner.
+Draft v0.2 — awaiting owner approval. Every item marked **Proposed** or **Open** (see the §13.4 decision table and §17) requires the owner's explicit sign-off before implementation. Items marked **Confirmed** reflect decisions already given by the owner.
+
+**This document has never been approved.** v0.2 records a platform pivot mandated by the owner (§1.4). No requirement in it is authorised for implementation until the Phase 0 gate in §18.1 passes.
 
 ### 1.3 Audience
 
@@ -34,20 +37,35 @@ Draft v0.1. Every item marked **Proposed** or **Open** (see the §13.4 decision 
 
 | Version | Date | Author | Change |
 |---|---|---|---|
-| v0.1 | 2026-10-26 | Documentation phase | Initial draft: scope, requirement registers, persistence decisions, risks, open questions, phased delivery |
+| v0.1 | 2026-10-26 | Documentation phase | Initial draft: scope, requirement registers, persistence decisions, risks, open questions, phased delivery. Targeted Vercel + Next.js + Turso/libSQL. **Superseded by v0.2.** |
+| v0.2 | 2026-10-26 | Documentation phase | **Hosting switched from Vercel to Cloudflare Workers; DB from Turso/libSQL to D1; media from provider-agnostic to R2; framework re-evaluated.** Added §12.1–§12.9 (Workers runtime model + framework evaluation matrix), rewrote §13 for D1/R2 with a Confirmed/Proposed/Open decision log and a superseded-decisions register (§13.7), added `FR-180`–`FR-199`, `NFR-041`–`NFR-060`, `AC-061`–`AC-080`, `DEP-011`–`DEP-016`, `RISK-011`–`RISK-018`, `OQ-013`–`OQ-020`, `D-17`–`D-26`. No requirement was deleted or renumbered. |
+| v0.2.1 | 2026-10-26 | Documentation phase | **v0.2.1 — factual-accuracy corrections; no requirement scope change.** Re-verified the framework citations against the live Cloudflare documentation and the npm registry; replaced ellipsis citations with full URLs; re-sourced the `nodejs_compat` default claim to the compatibility-flags reference; removed bare re-assertions of volatile platform limits in favour of a single labelled source (§12.2); corrected FR cross-references in §12.9/§13, the `RISK-014` reference in §11.1, ISR vocabulary in §8.2 and `AC-043`/`AC-047`, the `NFR-019` change-record row, and the `.gitignore` contradiction in §2.6. No requirement was added, deleted, renumbered, or re-scoped. |
+
+**Superseded decisions (v0.1 → v0.2), at a glance.** Full detail and rationale in §13.7.
+
+| v0.1 decision | Reason for supersession | Replaced by |
+|---|---|---|
+| Vercel hosting | Owner decision: runtime is Cloudflare Workers | Workers (§12.1) |
+| Turso (libSQL) as production DB | Owner decision: D1 is the database | Cloudflare D1 (§13.2) |
+| Vercel Blob / Cloudinary as media | Owner decision: R2 is the media store | Cloudflare R2 (§13.3) |
+| ISR (Incremental Static Regeneration) | Vercel-specific; no equivalent on Workers | On-demand SSR + HTTP cache + explicit purge (§12.4) |
+| Next.js App Router as framework | Re-evaluated against the Workers target | One of three candidates in §12.7 — **not** selected (§12.9) |
 
 ### 1.5 How to read requirement IDs
 
 Every requirement has a stable, never-reused ID. IDs are referenced by acceptance criteria (§15) and by agents when planning work.
 
-| Prefix | Meaning | Range reserved |
-|---|---|---|
-| `FR-###` | Functional requirement | `FR-001`–`FR-179` (blocked by domain) |
-| `NFR-###` | Non-functional requirement | `NFR-001`–`NFR-040` |
-| `AC-###` | Acceptance criterion | `AC-001`–`AC-060` |
-| `DEP-###` | Dependency | `DEP-001`–`DEP-010` |
-| `RISK-###` | Risk | `RISK-001`–`RISK-010` |
-| `OQ-###` | Open question requiring owner decision | `OQ-001`–`OQ-012` |
+| Prefix | Meaning | Range reserved | Highest used in v0.2 |
+|---|---|---|---|
+| `FR-###` | Functional requirement | `FR-001`–`FR-199` | `FR-199` |
+| `NFR-###` | Non-functional requirement | `NFR-001`–`NFR-060` | `NFR-060` |
+| `AC-###` | Acceptance criterion | `AC-001`–`AC-080` | `AC-080` |
+| `DEP-###` | Dependency | `DEP-001`–`DEP-016` | `DEP-016` |
+| `RISK-###` | Risk | `RISK-001`–`RISK-018` | `RISK-018` |
+| `OQ-###` | Open question requiring owner decision | `OQ-001`–`OQ-020` | `OQ-020` |
+| `D-##` | Decision-log entry (status: Confirmed / Proposed / Open) | `D-01`–`D-26` | `D-26` |
+
+`D-##` entries live in the decision table in §13.4; `OQ-###` entries live in §17. An `OQ` asks the owner a question; a `D` records the resulting state. An OQ may be **Resolved** while its linked D stays **Confirmed**; a superseded D is marked in §13.7 and never deleted.
 
 **Requirement ID index (reserved blocks — do not renumber, do not reuse retired IDs):**
 
@@ -61,11 +79,12 @@ Every requirement has a stable, never-reused ID. IDs are referenced by acceptanc
 | `FR-100`–`FR-119` | Media & uploads (last used: `FR-118`; `FR-119` reserved) |
 | `FR-120`–`FR-139` | Settings, branding, site configuration |
 | `FR-140`–`FR-159` | SEO |
-| `FR-160`–`FR-179` | Publishing workflow, status model, redirects |
+| `FR-160`–`FR-179` | Publishing workflow, status model, redirects (last used: `FR-179`; `FR-171`–`FR-175` never issued and stay reserved) |
+| `FR-180`–`FR-199` | **v0.2** — Cloudflare platform: Workers runtime, D1 migrations, R2 media pipeline, caching, deployment, observability |
 
 Rules:
 
-1. A requirement is never deleted. If dropped, its status becomes *retired* and the ID is never reused. Unused numbers inside a block remain reserved and must not be reassigned to another domain.
+1. A requirement is never deleted. If dropped, its status becomes *retired* and the ID is never reused. Unused numbers inside a block remain reserved and must not be reassigned to another domain. (In this register `FR-135`, `FR-138` and `FR-171`–`FR-175` were never issued; they remain reserved and are **not** reused by the v0.2 block, which starts at `FR-180`.) The same applies to the non-functional register: **`NFR-022`–`NFR-040` were never issued.** They remain reserved and must not be reassigned; the v0.2 NFR block deliberately starts at `NFR-041` so that the gap stays visible and auditable rather than being silently backfilled.
 2. Priority: **MUST** (launch blocker), **SHOULD** (expected at launch, may slip with owner approval), **COULD** (may move to the later-phase backlog).
 3. Phase values refer to §18 (`P0`–`P6`).
 4. Every `FR-###` is verified by at least one `AC-###`; §15.1 is the coverage map and must be updated whenever an FR is added.
@@ -88,7 +107,7 @@ The owner is not a developer. The commercial problem is not "we need a website" 
 | O2 | Let the owner publish and edit products, articles, branding, and SEO settings with **zero code edits** | Every content type editable from `/admin`; no deploy required to change copy or price |
 | O3 | Generate inquiries through WhatsApp and a contact form | WhatsApp CTA on every page; prefilled message carries page/product context |
 | O4 | Be discoverable for relevant local search intent | Clean indexable HTML, sitemap, structured data, per-page metadata — *no ranking guarantees* |
-| O5 | Stay maintainable and low-cost for a small business | Vercel plus free-tier-compatible data services, documented swap points |
+| O5 | Stay maintainable and low-cost for a small business | Cloudflare Workers + D1 + R2 on documented plan tiers, with adapter boundaries and documented swap points |
 
 ### 2.3 Secondary objectives
 
@@ -121,19 +140,20 @@ Colour values are brand tokens; contrast ratios must be verified against WCAG 2.
 | Existing customer | Already installed, needs service | Fast path to contact/service information |
 | Business owner (admin) | Non-technical, single operator | Edit content, publish articles, upload photos, change the WhatsApp number |
 
-### 2.6 Current repository state (verified 2026-10-26)
+### 2.6 Current repository state (re-verified 2026-10-26, during the v0.2 revision)
 
-The repository was audited with file tools before this document was written.
+The repository was re-audited with file tools and Git before this revision was written. This section replaces the v0.1 text, which is now inaccurate in two respects (it claimed `AGENTS.md` was absent and that there were zero commits).
 
-- **Present:** `logo/` containing exactly 4 PNG files (§10.1).
-- **Absent:** no `AGENTS.md`, no `README.md`, no `package.json`, no lockfile, no `next.config.*`, no `tsconfig.json`, no `.env*`, no `.gitignore`, no `src/`, no `app/`, no `public/`, no scripts, no tests, no CI configuration.
-- **Git:** at the start of this documentation phase the folder was **not** a Git repository (`git status` returned "not a git repository"). A `.git` directory was created afterwards, during the session. It currently has **zero commits** (branch `main`, no history), and `.gitignore` does not exist. `git status` reports only `AGENTS.md`, `PRD.md`, and `logo/` as untracked.
+- **Present:** `AGENTS.md`, `PRD.md`, and `logo/` containing exactly 4 PNG files (§10.1). Nothing else.
+- **Absent:** no `README.md`, no `package.json`, no lockfile, no `node_modules`, no `wrangler.jsonc`/`wrangler.toml`, no `migrations/`, no `.dev.vars`, no `.env*`, no `tsconfig.json`, no framework config, no `src/`, no `app/`, no `public/`, no scripts, no tests, no CI configuration, no Cloudflare resource of any kind. (`.gitignore` is **not** absent — see the post-audit note below.)
+- **Git (verified, not assumed):** branch `main` exists and has **exactly one commit** — `342f0c1 "Add new logo files for Garda Jaya CCTV branding"`. `git ls-files` tracks `AGENTS.md`, `PRD.md`, and three of the four logo PNGs. At audit time `git status --porcelain` reported a single untracked path: `logo/Garda Jaya CCTV Logo Presentation.png`, and there was **no `.gitignore`**.
+- **Post-audit note:** an untracked `.gitignore` (one line, ignoring the presentation sheet) appeared in the working tree *after* the audit, from outside this documentation task. It is recorded here so the state described above is not mistaken for a contradiction. It is not authored by the documentation phase and does not constitute Phase 1 tooling work; a proper `.gitignore` covering `.dev.vars`, `.wrangler/`, build output and `node_modules` remains a Phase 1 deliverable.
 
 Consequences binding all later work:
 
-1. There are **no existing conventions to follow** and **no conflicting files**. No file was overwritten.
-2. No build, lint, test, or dev command exists. Any command reference in planning documents is *planned*, not current.
-3. The repository has no commits and no `.gitignore`. Creating `.gitignore` and making the initial commit are Phase 1 items, not assumptions.
+1. There are **no existing conventions to follow** and **no conflicting application files**. No application file was overwritten.
+2. No build, lint, test, or dev command exists. Any command reference in planning documents is *planned*, not current. Do not present `wrangler dev`, `npm run build`, or any migration command as runnable today.
+3. The documentation phase is **not** the initialisation phase: `.gitignore` (including `.dev.vars` and `.wrangler/`), the Cloudflare account/zone setup, D1 and R2 provisioning, and the project scaffold are all Phase 1 work (§18.1) and require the Phase 0 gate to pass first.
 4. `logo/` is treated as an immutable source reference (§10.5).
 
 ---
@@ -195,7 +215,7 @@ Edits slug → system warns the old URL will permanently redirect → saves → 
 | Admin CMS | Authentication, dashboard, product management, article management, media library, site settings/branding, SEO settings, publishing workflow |
 | Content model | Products, categories, articles, media, static page content, site settings, slug history |
 | SEO | Metadata, canonical, OG/Twitter, sitemap, robots, JSON-LD, redirects, draft noindex |
-| Persistence | SQLite-compatible relational model; production persistence via an approved managed service; media via object storage |
+| Persistence | SQLite-compatible relational model; production persistence via **Cloudflare D1**; media via **Cloudflare R2** (§13) |
 | Non-functional | Performance, accessibility, responsive behaviour, security baseline, backup targets |
 
 ### 4.2 Explicit non-goals
@@ -509,7 +529,9 @@ Global defaults plus per-record overrides for products, articles, services, and 
 
 ### 7.7 Media handling rules
 
-Uploads are validated, transformed, stored in external object storage, and referenced by CDN URL. No upload is ever written to the deployment filesystem as the source of truth (§13.3). Deleting referenced media warns and requires confirmation.
+Uploads are validated, streamed to **Cloudflare R2**, and referenced by a public URL on an owner-controlled custom domain. No upload is ever written to the Worker's filesystem as the source of truth — the Workers filesystem is a per-request memory VFS whose `/tmp` does not survive the request (§12.2). Deleting referenced media warns and requires confirmation.
+
+Server-side image *transformation* is **not** part of this phase: `sharp` and similar native image libraries are not viable under the Workers CPU budget. Validation (magic bytes, size, dimensions), EXIF stripping and pre-generated variants are in scope; on-the-fly resizing is an **Open** decision (§13.4 `D-19`, `OQ-014`).
 
 ### 7.8 Rich text editor requirements (library not committed)
 
@@ -564,7 +586,7 @@ No template chosen. Decision remains **Open** (`D-09`, `OQ-006`). Evaluation com
 | ID | Requirement | Priority | Phase | Verification |
 |---|---|---|---|---|
 | `FR-080` | Login screen at `/admin/masuk`; authenticated area under `/admin` | MUST | P2 | `AC-026` |
-| `FR-081` | Passwords stored with Argon2id (preferred) or bcrypt cost ≥ 12; never plaintext, never logged | MUST | P2 | `AC-027` |
+| `FR-081` | Passwords stored as a slow, salted, one-way hash; never plaintext, never logged. **Algorithm Open** — Argon2id/bcrypt cost ≥ 12 may exceed the Workers CPU budget; PBKDF2-SHA256 via Web Crypto is the leading candidate pending benchmark (`OQ-015`; §13.8) | MUST | P2 | `AC-027` |
 | `FR-082` | Every admin request re-validates the session server-side against the session store | MUST | P2 | `AC-028` |
 | `FR-083` | Session cookie `HttpOnly`, `Secure` in production, `SameSite=Lax` or `Strict`, scoped path; no tokens in `localStorage` | MUST | P2 | `AC-029` |
 | `FR-084` | CSRF protection on all state-changing requests (origin/`Sec-Fetch-Site` check plus per-session token) | MUST | P2 | `AC-030` |
@@ -589,21 +611,21 @@ No template chosen. Decision remains **Open** (`D-09`, `OQ-006`). Evaluation com
 | ID | Requirement | Priority | Phase | Verification |
 |---|---|---|---|---|
 | `FR-100` | Upload through the media library with server-side validation before storage | MUST | P2 | `AC-037` |
-| `FR-101` | Storage access goes through a provider-agnostic adapter interface (put/delete/getPublicUrl/replace) | MUST | P2 | `AC-038` |
+| `FR-101` | Storage access goes through an adapter interface (put/delete/getPublicUrl/replace); **R2 is the confirmed implementation**, the boundary is retained for testability and exit (§13.3.8) | MUST | P2 | `AC-038` |
 | `FR-102` | Object keys are random and opaque; never derived from original filename or sequential | MUST | P2 | `AC-039` |
 | `FR-103` | Content-type validated against magic bytes; mismatches rejected | MUST | P2 | `AC-037` |
 | `FR-104` | Per-file size limit enforced server-side with a clear Indonesian error | MUST | P2 | `AC-037` |
 | `FR-105` | EXIF (including GPS) stripped on upload | MUST | P2 | `AC-040` |
-| `FR-106` | Responsive width variants generated and referenced via `srcset` with explicit dimensions | SHOULD | P2 | `AC-040` |
+| `FR-106` | Responsive width variants referenced via `srcset` with explicit dimensions. Variants are **pre-generated, produced client-side before upload, or delegated to Cloudflare Images** — never generated by `sharp` inside a Worker (`D-19`; §13.8) | SHOULD | P2 | `AC-040` |
 | `FR-107` | Public absolute CDN URL stored in the database; never a local or deployment-internal path | MUST | P2 | `AC-038` |
 | `FR-108` | Media library grid with search, type filter, pagination, and metadata display | MUST | P3 | `AC-041` |
 | `FR-109` | Deletion checks references, warns, requires confirmation, then removes the object and row | MUST | P3 | `AC-042` |
 | `FR-110` | Alt text required for content images; enforced at publish | MUST | P3 | `AC-041` |
 | `FR-111` | Media replacement preserves the media record and existing references | SHOULD | P3 | `AC-043` |
 | `FR-112` | Failed uploads leave no orphan database row and no partial object | SHOULD | P2 | `AC-042` |
-| `FR-113` | Delivery uses optimised formats with fallbacks and lazy loading below the fold | SHOULD | P5 | `AC-040` |
+| `FR-113` | Delivery uses optimised formats with fallbacks and lazy loading below the fold; format conversion may rely on Cloudflare Images or pre-generated files (`D-19`) | SHOULD | P5 | `AC-040` |
 | `FR-114` | Accepted formats restricted (jpeg/png/webp/avif); SVG rejected for user uploads | MUST | P2 | `AC-037` |
-| `FR-115` | Oversized images downscaled on upload to a maximum dimension | SHOULD | P2 | `AC-040` |
+| `FR-115` | Oversized images are downscaled to a maximum dimension **before** storage (client-side or external step) or rejected; the Worker does not resize (`D-19`) | SHOULD | P2 | `AC-040` |
 | `FR-116` | Media picker available inside product and article editors | MUST | P3 | `AC-041` |
 | `FR-117` | Duplicate detection by checksum to avoid re-uploading identical files | COULD | P3 | `AC-039` |
 | `FR-118` | Upload progress and failure feedback in Bahasa Indonesia | SHOULD | P3 | `AC-042` |
@@ -617,7 +639,7 @@ No template chosen. Decision remains **Open** (`D-09`, `OQ-006`). Evaluation com
 | `FR-122` | WhatsApp number normalised to international form (leading `0` → `62`, non-digits removed) | MUST | P3 | `AC-005` |
 | `FR-123` | Brand colour tokens editable with format validation and a contrast warning for failing combinations | SHOULD | P3 | `AC-046` |
 | `FR-124` | Logo slot assignment (primary, mono, reversed, icon) via media references; empty slot renders a text fallback | MUST | P3 | `AC-044` |
-| `FR-125` | Settings and content saves trigger revalidation of affected public paths without a redeploy | MUST | P3 | `AC-047` |
+| `FR-125` | Settings and content saves **purge the affected cached public URLs** so changes appear without a redeploy (explicit purge, not ISR-style revalidation — §12.4) | MUST | P3 | `AC-047` |
 | `FR-126` | Preview of branding changes before saving | COULD | P3 | `AC-046` |
 | `FR-127` | No secrets (API keys, DB URLs, tokens) in settings UI, settings table, or client bundles | MUST | P3 | `AC-048` |
 | `FR-128` | Settings changes recorded in the audit log | SHOULD | P3 | `AC-035` |
@@ -650,7 +672,7 @@ Permitted transitions: `draft → published`, `published → unpublished`, `publ
 
 1. Save as draft. Drafts are never reachable through the normal public route.
 2. Preview renders the real page template behind a short-lived, signed token (`FR-161`). Preview responses send `X-Robots-Tag: noindex, nofollow` and are excluded from the sitemap.
-3. Publish runs validation (required fields, slug uniqueness, price consistency, image alt text), then flips status and revalidates affected public paths (`FR-162`, `FR-179`).
+3. Publish runs validation (required fields, slug uniqueness, price consistency, image alt text), then flips status and **purges** the affected cached public URLs (`FR-162`, `FR-179`).
 
 ### 8.3 Unpublish and archive
 
@@ -691,7 +713,34 @@ Replacing an image keeps the media record and its references: the stored object 
 | `FR-176` | Redirect management screen to view and remove slug history entries | SHOULD | P3 | `AC-054` |
 | `FR-177` | Redirect chains collapsed; loops detected and refused | SHOULD | P3 | `AC-054` |
 | `FR-178` | Slug-change warning shown in the editor before saving | MUST | P3 | `AC-054` |
-| `FR-179` | Publish/unpublish revalidates all affected public paths | MUST | P3 | `AC-047` |
+| `FR-179` | Publish/unpublish **purges** every affected cached URL: the detail page, its listing/archive pages, and the sitemap (§12.4) | MUST | P3 | `AC-047` |
+
+### 8.7 Functional requirements — Cloudflare platform (`FR-180`–`FR-199`, added in v0.2)
+
+These cover the runtime, database and storage operations introduced by the platform switch. They are new, not renumbered.
+
+| ID | Requirement | Priority | Phase | Verification |
+|---|---|---|---|---|
+| `FR-180` | The application runs on the Cloudflare Workers runtime (V8 isolate / `workerd`), not on Node.js, and deploys with `wrangler deploy`. Local development uses `wrangler dev` so the runtime matches production | MUST | P1 | `AC-061` |
+| `FR-181` | Runtime compatibility is verified explicitly: `nodejs_compat` is declared with a pinned `compatibility_date`, and no dependency relies on a Node API that Workers does not provide | MUST | P1 | `AC-061` |
+| `FR-182` | No production code path reads or writes the Worker filesystem for data or uploads. `node:fs` is not used as a data store; `/tmp` is treated as request-scoped scratch only (§12.2) | MUST | P2 | `AC-063` |
+| `FR-183` | The database is accessed through the D1 binding (`env.DB`). No connection string, credentials, or `file:` URL appears in application configuration | MUST | P2 | `AC-062` |
+| `FR-184` | Schema migrations live in a version-controlled `migrations/` directory and are applied with `wrangler d1 migrations apply`, separately for local, preview and production | MUST | P2 | `AC-062` |
+| `FR-185` | Every multi-statement write that must be atomic is issued as a single `batch()` call — there are no interactive transactions (§13.2.2) | MUST | P2 | `AC-069` |
+| `FR-186` | Publishing, unpublishing and settings changes purge the affected cached URLs explicitly. Admin responses are never publicly cached | MUST | P3 | `AC-072` |
+| `FR-187` | Media uploads stream to R2 through the adapter; no upload is buffered whole in memory beyond the configured limit and none is written to the filesystem | MUST | P2 | `AC-064` |
+| `FR-188` | Media is delivered from an R2 **custom domain** on the owner's zone. `r2.dev` URLs are never used in production content | MUST | P5 | `AC-064` |
+| `FR-189` | Large uploads may use a presigned PUT to R2, issued only to an authenticated, CSRF-checked admin request, with a short expiry; the resulting object is verified server-side before a media row is trusted | SHOULD | P3 | `AC-064` |
+| `FR-190` | The bucket CORS policy is configured per environment so browser-direct uploads work in preview and production, and is restricted to the admin origin | MUST | P2 | `AC-064` |
+| `FR-191` | Deleting media deletes the R2 object and then the D1 row, in that order, and a scheduled reconciliation reports orphans in both directions (§13.3.6) | SHOULD | P3 | `AC-075` |
+| `FR-192` | Secrets are supplied by `wrangler secret put` (production) and `.dev.vars` (local, gitignored). No secret appears in `wrangler.jsonc` `vars`, the repository, logs, or any client bundle | MUST | P1 | `AC-080` |
+| `FR-193` | The application reads configuration from Workers **bindings**, not `process.env`, and fails fast with a clear message when a required binding is absent | MUST | P1 | `AC-061` |
+| `FR-194` | Sessions are stored server-side in D1 and carried in a signed `HttpOnly` cookie; signing uses Web Crypto HMAC, not a Node-only crypto module (§11.1) | MUST | P2 | `AC-067` |
+| `FR-195` | A separate preview/staging environment uses its **own** D1 database and R2 bucket; production data is never reachable from preview | MUST | P1 | `AC-073` |
+| `FR-196` | Structured logs and error reporting are enabled (`observability`), covering auth events, publish actions, upload failures and platform errors, with no secrets or full PII | MUST | P2 | `AC-078` |
+| `FR-197` | A scheduled logical export of D1 is written to R2 on a documented cadence, and a restore into a non-production environment has been performed and recorded | SHOULD | P6 | `AC-058`, `AC-074` |
+| `FR-198` | Server-side image transformation is **not** implemented in a Worker. If transformation is needed it is delegated to Cloudflare Images/Resizing or performed before upload (`D-19`) | MUST | P2 | `AC-065` |
+| `FR-199` | The deployment is reproducible from the repository: a pinned Wrangler version, a committed `wrangler.jsonc`, and a documented deploy command that requires no manual dashboard steps beyond secrets and one-time resource creation | SHOULD | P1 | `AC-061` |
 
 ---
 
@@ -756,7 +805,7 @@ Principles:
 | **No delivered reversed/white variant** | A white-on-navy logo appears in the presentation sheet but is **not** an available file; a Deep Navy header/footer cannot carry the logo correctly | Interim: keep header/footer on light surfaces or place the navy logo on a white plate. Do not extract from the mockup (§10.5) |
 | **Icon is 300×250, non-square** | Favicons and app icons need square canvases; upscaling to 512 px blurs | Derive on a square transparent canvas with padding; request a 1024 px square export |
 | **Monochrome lockup is navy only** | No white or black monochrome for single-colour print or dark UI | Request black and white monochrome masters |
-| Presentation sheet is opaque and 1.18 MB | Unsuitable as a web asset | Never ship it; reference only |
+| Presentation sheet is opaque and ~1.2 MB (1,209,659 bytes) | Unsuitable as a web asset | Never ship it; reference only |
 
 ### 10.3 Favicon and app-icon derivation
 
@@ -799,7 +848,7 @@ The CMS stores a media reference per slot so swapping the logo requires no deplo
 | Control | Requirement |
 |---|---|
 | Role model | Single `Administrator` role. No RBAC, invitations, or teams (`FR-091`) |
-| Password storage | Argon2id (preferred) or bcrypt cost ≥ 12; never reversible, never logged (`FR-081`) |
+| Password storage | Never reversible, never logged (`FR-081`). **Algorithm is Open (`OQ-015`):** Argon2id/bcrypt cost ≥ 12 were written for a Node.js runtime and may exceed the Workers CPU budget documented in §12.2 (the figure is not restated here). PBKDF2-SHA256 via Web Crypto is the leading candidate; it must be benchmarked on the real runtime before selection. Until `OQ-015` closes, the *property* (slow, salted, one-way, per-password salt) is mandatory and the *algorithm* is provisional |
 | Session validation | **Every** admin request re-validates the session server-side. Middleware alone is insufficient and is treated as a UX redirect only (`FR-082`, `FR-092`) |
 | Cookies | `httpOnly`, `Secure`, `SameSite=Lax`/`Strict`, scoped path; no tokens in `localStorage` (`FR-083`) |
 | CSRF | Origin/`Sec-Fetch-Site` checks plus a per-session token on all state-changing requests (`FR-084`) |
@@ -816,115 +865,369 @@ The CMS stores a media reference per slot so swapping the logo requires no deplo
 
 Auth library: **Auth.js or a vetted session library is proposed, not committed** (`OQ-004`). A hand-rolled session layer must still satisfy every control above.
 
+### 11.1 Session and secret mechanics on Workers
+
+These are design constraints, not implementation:
+
+| Concern | Direction | Status |
+|---|---|---|
+| Session transport | Signed `HttpOnly` cookie; HMAC signature via **Web Crypto** (`crypto.subtle`), no Node-only crypto module | Proposed |
+| Session store | A `sessions` table in **D1**, keyed by a random opaque session ID; server-side revocation is a row delete | Proposed |
+| External session store | Workers KV or a hosted session service would work, but **KV is outside the approved scope** — it would need a new owner decision (`OQ-016`) | Out of scope |
+| Secrets | `wrangler secret put` for production; `.dev.vars` for local, gitignored; **never** in `wrangler.jsonc` `vars`, never in the repo, never in the client bundle | Confirmed as a rule |
+| Admin gate (alternative) | **Cloudflare Access (Zero Trust)** can front `/admin` as a complementary identity gate before the app's own login. Cost/tier and whether it is warranted for a single-operator CMS must be verified — see `OQ-015` and `D-22`. **Cost exposure is `RISK-002` (included-limit ceilings); no risk entry currently models the admin-access model itself, which is why it stays an Open question rather than a documented risk** | Open |
+| CSRF | Origin/`Sec-Fetch-Site` check plus a per-session token; unchanged from v0.1 (`FR-084`) | Confirmed |
+| Rate limiting | Application-level counters in D1; Cloudflare WAF rate-limiting rules are a possible complement, to be verified before reliance | Proposed |
+
 ---
 
 ## 12. Technology & deployment constraints
 
-### 12.1 Mandatory direction
+### 12.1 Confirmed platform decisions (owner-mandated)
 
 | Layer | Decision | Status |
 |---|---|---|
-| Runtime | Node.js + TypeScript | **Confirmed** |
-| Framework | Next.js (App Router) + React + TypeScript | **Proposed — awaiting owner sign-off** |
-| Hosting | Vercel | **Confirmed** |
-| Data model | SQLite-compatible relational (SQL, single-file heritage) | **Confirmed** |
-| Rendering | Public pages server-rendered / statically generated; SEO-first | **Confirmed** |
+| Hosting / runtime | **Cloudflare Workers** | **Confirmed** (owner) |
+| Database | **Cloudflare D1** | **Confirmed** (owner) |
+| Media / object storage | **Cloudflare R2** | **Confirmed** (owner) |
+| Framework | Not decided — evaluated in §12.6–§12.9 | **Proposed — awaiting owner sign-off** |
+| Language | TypeScript, `strict` | **Confirmed** |
+| Data model | SQLite-compatible relational schema (D1 *is* SQLite) | **Confirmed** |
+| Rendering | Server-rendered HTML for public pages, SEO-first; no client-only rendering of primary content | **Confirmed** |
 
-### 12.2 Framework justification (Next.js App Router)
+The v0.1 target (Node.js on a Vercel host, Next.js, Turso/libSQL, provider-agnostic media) is **superseded**. See §1.4 and §13.7. This is not a refactor of that plan — it is a different platform, and several v0.1 requirements had to be amended rather than merely re-hosted (§13.8).
 
-| Reason | Detail |
+### 12.2 Workers runtime model — what actually changes
+
+| Property | Reality on Workers | Consequence for this product |
+|---|---|---|
+| Execution model | V8 isolates on `workerd`, not a Node.js process. No long-lived process, no in-process state that survives a request | No in-memory caches as source of truth; sessions and data live in D1. `[verified: https://developers.cloudflare.com/workers/, 2026-10-26]` |
+| Node.js APIs | Node built-in modules require the `nodejs_compat` compatibility flag. **The exact compatibility date at which `nodejs_compat` (and its v2 variant) becomes default, and the precise default behaviour, must be confirmed against the compatibility-flags reference at implementation time.** `[unverified — confirm before implementation]` | Node-targeting libraries may work, but "it imports" is not "it is supported". Each dependency is checked, not assumed |
+| Filesystem | **Not a real disk.** `node:fs` maps to a memory-based Virtual File System: `/bundle` is read-only, `/tmp` is writable but **"the contents of `/tmp` are not persistent and are unique to each request"**. `[verified: https://developers.cloudflare.com/workers/runtime-apis/nodejs/fs/, 2026-10-26]` | A SQLite `file:` database and any upload written to disk are **impossible in production**, not merely discouraged. Uploads stream to R2; data lives in D1 |
+| CPU time | 10 ms per request on Workers Free; 5 min maximum on Paid (default 30 s). Waiting on network I/O does **not** count. `[verified: https://developers.cloudflare.com/workers/platform/limits/, 2026-10-26]` | A hard design budget. No `sharp`, no native image processing, no heavy synchronous hashing inside a request. See §12.2.1 |
+| Memory | 128 MB per isolate on both Free and Paid. `[verified: https://developers.cloudflare.com/workers/platform/limits/, 2026-10-26]` | Large multipart bodies must stream, not be buffered whole |
+| Request body size | 100 MB on Free/Pro, 200 MB on Business (account plan, not Workers plan). `[verified: https://developers.cloudflare.com/workers/platform/limits/, 2026-10-26]` | Plenty for photos; still not a reason to proxy uploads through the Worker when a presigned PUT will do (§13.3) |
+| Response | Documented as having **no enforced response-body limit**; streaming supported. `[verified: https://developers.cloudflare.com/workers/platform/limits/, 2026-10-26]` | Long pages and file downloads can stream |
+| Outbound connections | **6** simultaneous outgoing connections per request, on both Free and Paid. `[verified: https://developers.cloudflare.com/workers/platform/limits/, 2026-10-26]` | Batch D1 work; avoid fan-out |
+| Secrets | `wrangler secret put` / `.dev.vars`; bindings, not `process.env` | `process.env` reliance is a bug, not a style choice |
+
+> **This table is the single authoritative source for Workers platform numbers in this document (v0.2.1).** Every other mention of a CPU, memory, request-size or connection figure — in §11, §12.2.1, §12.5, §13.4, §14, §16 and §17, and in `AGENTS.md` — either points back here or carries the same `[verified: …]` label. **If a number appears anywhere without one of those two treatments, it is a documentation defect.** Re-verify every figure against the linked page before implementation; these are volatile and none is a requirement in itself.
+
+#### 12.2.1 The CPU budget is a product constraint, not an implementation detail
+
+Two v0.1 requirements are **materially changed** by this limit and are reclassified as Open:
+
+1. **Image optimisation (`NFR-019`, `FR-106`, `FR-113`, `FR-115`).** `sharp` cannot run in a Worker. Options: Cloudflare Images / Image Resizing (paid tiers, and the Free plan allows 5,000 unique transformations per month `[verified: https://developers.cloudflare.com/images/pricing/, 2026-10-26]`), client-side pre-resize before upload, or pre-generated variants produced at upload time by an external step. **Not solved here** — `D-19`, `OQ-014`.
+2. **Password hashing (`FR-081`).** Argon2id with production-grade parameters is designed to be expensive; that is precisely what the Workers CPU limit documented in §12.2 punishes. PBKDF2-SHA256 via Web Crypto (`crypto.subtle`, see `https://developers.cloudflare.com/workers/runtime-apis/web-crypto/`) is the leading candidate, with a benchmark on the real runtime as the acceptance test. **Not solved here** — `OQ-015`.
+
+A third, quieter consequence: **any** request path that does synchronous work over large data — rendering a 200 KB article body, parsing a huge multipart form, computing many checksums — must be measured, not assumed.
+
+### 12.3 Static assets and rendering strategy
+
+- Static assets (CSS, JS, fonts, images committed to the build) are served by the Workers **static assets** feature, not by application code. `[verified: https://developers.cloudflare.com/workers/static-assets/, 2026-10-26]`
+- Public pages are **server-rendered on demand from D1** so the owner's edits appear without a deploy (`FR-125`, `FR-179`). Purely static pages (privacy policy shell, 404) may be pre-rendered at build time.
+- Primary content must be in the HTML response. Crawlers must not need JavaScript (unchanged from v0.1 — `FR-015`).
+
+### 12.4 Caching and invalidation — **there is no ISR**
+
+The v0.1 document assumed incremental static regeneration, which was a property of the Vercel hosting target and does not exist here. It is **removed** (§13.7). The replacement is explicit and testable:
+
+| Layer | Mechanism | Invalidation |
+|---|---|---|
+| HTML responses | `Cache-Control` with `s-maxage` + `stale-while-revalidate` on public pages; Cloudflare CDN caches at the edge | **Explicit purge by URL** on publish / unpublish / settings change (`FR-186`) |
+| Static assets | Content-hashed filenames, immutable long-lived caching | New hash per build |
+| R2 media | Public custom domain behind Cloudflare cache; long `Cache-Control` because keys are random and immutable | New key on replace; old key purged or left to expire |
+| Per-request work | Cache API for expensive derived values (e.g. rendered nav) — optional, not a source of truth | Versioned key |
+
+Rules:
+
+1. **No page may be cached in a way that serves a draft, an unpublished record, or stale admin data.** Admin responses are `Cache-Control: no-store`.
+2. A publish action must purge the affected URLs *and* the listing/archive/sitemap URLs, not just the detail page.
+3. Cache correctness is verified by `AC-070` (draft never served from cache) and `AC-072` (edit visible after purge) — not by assumption.
+
+### 12.5 Environments, domains and deployment
+
+| Environment | Runtime | Data | Purpose |
+|---|---|---|---|
+| Local | `wrangler dev` (workerd locally) | Local D1 + local R2 emulation | Development; closest possible parity |
+| Preview / staging | Workers (separate Worker or environment) | **Separate D1 database** and separate R2 bucket | Pre-production verification; never the production database |
+| Production | Workers | Production D1 + R2 | Live site |
+
+- **Domain & DNS:** the domain must be a zone in the same Cloudflare account as the R2 bucket for a bucket custom domain to work. `[verified: https://developers.cloudflare.com/r2/buckets/public-buckets/, 2026-10-26]` Ownership of account + zone is a dependency (`DEP-011`, `OQ-017`).
+- **Region:** Workers run at the edge; D1 has a primary location. Data-location hints exist, but latency to Indonesian users and D1 primary placement must be measured, not assumed. `[unverified — confirm before implementation]` (`OQ-018`).
+- **Plan tier:** Free vs Paid changes the CPU budget by orders of magnitude and changes D1 limits — the documented figures live in the §12.2 limits table and in §13.2.1, not here. This is a launch decision, not a billing detail (`OQ-018`, `RISK-016`).
+
+### 12.6 Framework evaluation (v0.2) — method and evidence
+
+**Why re-evaluate.** The v0.1 framework choice was justified partly by platform alignment with the old host ("first-class support, zero-config deploys"). That justification evaporates with the platform change, so the choice is reopened rather than inherited.
+
+**Candidates (exactly three):**
+
+| | Candidate | Version substantiated |
+|---|---|---|
+| A | **Astro** + `@astrojs/cloudflare` | `astro` and `@astrojs/cloudflare` — current major versions were checked against the npm registry during this phase; re-verify before implementation `[verified: https://registry.npmjs.org/astro/latest and https://registry.npmjs.org/@astrojs/cloudflare/latest, 2026-10-26]` |
+| B | **React Router framework mode** + Cloudflare Vite plugin | `react-router` — current major version checked against the npm registry during this phase; re-verify before implementation `[verified: https://registry.npmjs.org/react-router/latest, 2026-10-26]` |
+| C | **Next.js on Workers via `vinext`** | `vinext` (**beta**, per Cloudflare's guide) and `next` — current versions checked against the npm registry during this phase; re-verify before implementation `[verified: https://registry.npmjs.org/vinext/latest and https://registry.npmjs.org/next/latest, 2026-10-26]` |
+
+> **Why no exact semver here (v0.2.1).** Earlier drafts pinned exact versions (`astro` 7.4.2, `react-router` 8.5.0, `vinext` 1.3.1, `next` 16.4.3, `@opennextjs/cloudflare` 1.20.13). Those numbers were re-checked and were accurate *on 2026-10-26*, but they are not requirements — they go stale within weeks and would silently mislead an implementer. They have been removed from the prose. The binding statement is the **major-version direction** (React Router is on v8, not "v7+"), which is what actually constrains the evaluation. Re-resolve exact versions from the registry at scaffold time.
+
+**Which Next.js path does Cloudflare actually endorse?** Cloudflare's Next.js guide states, verbatim: *"Cloudflare recommends vinext as the default way to run Next.js applications on Cloudflare Workers."* and *"vinext is in beta."* The same page lists the **OpenNext adapter** as a secondary path, in a table row whose "Use when" cell reads: *"You maintain an existing OpenNext application that cannot yet migrate to vinext because of a compatibility gap."* `[verified: https://developers.cloudflare.com/workers/framework-guides/web-apps/nextjs/, 2026-10-26 — re-verified 2026-10-26 during the v0.2.1 correction pass]` So: **vinext is endorsed by Cloudflare and is beta; `@opennextjs/cloudflare` (1.20.13, npm `latest`) is documented but positioned as a migration path for existing OpenNext apps.** A beta endorsement is still a beta.
+
+> **Provenance note (v0.2.1).** Both sentences above were fetched from the live page and matched word-for-word during this revision, and the npm `latest` versions in §12.6 were re-queried from the registry. Earlier drafts of this row paraphrased the OpenNext table cell with an added *"if you"*; that paraphrase has been removed so that everything inside quotation marks is literal. If either sentence is not found on the page at implementation time, treat this row as stale and re-derive it — do not carry it forward on trust.
+
+**Evidence protocol used in this section.** Every platform claim is labelled either `[verified: <url>, <date>]` — fetched and read during this revision — or `[unverified — confirm before implementation]`. Volatile specifics (exact limits, pricing, beta status, major versions) are quoted with their source and dated, because they will drift. **No figure in this section is estimated or invented.** Where a claim could not be checked, it is marked unverified rather than asserted.
+
+**What the scores are and are not.** The 1–5 scores below are a structured judgement against this product's requirements, anchored to the cited documentation. They are **not** benchmark results, and no performance number is claimed.
+
+### 12.7 Comparison matrix (1 = poor fit, 5 = strong fit)
+
+| # | Criterion | A. Astro | B. React Router v8 | C. Next.js + vinext |
+|---|---|---|---|---|
+| 1 | **SEO**: metadata, sitemap, canonical, structured data, SSR/SSG quality, `<head>` control | **5** — content-first; per-page `<head>` is the default mental model; static output by default | **4** — full SSR; but the Cloudflare guide states *"SPA mode and prerendering are not currently supported when using the Cloudflare Vite plugin"*, so no static generation | **4** — metadata API is strong; static generation supported; beta toolchain in the path |
+| 2 | **Public-site performance** (JS shipped, caching, image handling) | **5** — zero JS by default; islands only where needed | **3** — React hydration for the whole app shell | **3** — heaviest baseline; image optimisation only *"partially supported"* per Cloudflare |
+| 3 | **Admin ergonomics**: auth, CRUD, forms, validation, upload UX | **3** — viable, but interactive admin is an island architecture inside a content framework; forms need deliberate design | **5** — loaders/actions, progressive enhancement, `useNavigation`, error boundaries are exactly a CRUD admin's shape | **4** — Server Actions and RSC are excellent for forms; constrained by beta status |
+| 4 | **D1 integration + migrations** (adapter maturity, local parity, transactions) | **4** — bindings via `locals.runtime.env`; D1 is driver-agnostic SQL either way | **4** — bindings via `context.cloudflare.env` in loaders/actions; same SQL | **3** — bindings via `cloudflare:workers`; additional abstraction layer, and Drizzle/vinext interplay is less travelled |
+| 5 | **R2 uploads** (validation, access control, presigned/direct) | **3** — API routes can do it; direct-to-R2 needs custom endpoints | **4** — actions handle multipart naturally; presigned flow is plain server code | **4** — route handlers/Server Actions handle uploads well |
+| 6 | **TypeScript support & maintainability** | **5** — typed frontmatter/content collections, strict-friendly | **4** — good types; framework churn across majors has been real | **4** — excellent types; the reimplementation layer is an extra surface to debug |
+| 7 | **Free commercial-use admin template availability** | **3** — most admin templates assume a React SPA shell; fewer Astro-native options | **4** — the React admin-template ecosystem applies directly | **4** — same ecosystem, plus Next-specific dashboards |
+| 8 | **Runtime compatibility / Workers limits** | **5** — official adapter, `output: 'server'`, `prerender = true` per route | **5** — first-class: the Cloudflare Vite plugin runs server code in the Workers runtime locally | **4** — Cloudflare's own feature table marks App Router, RSC, Server Actions, SSR, static generation, ISR, middleware and **Cloudflare bindings** as "Supported"; only *"`next/*` imports: Mostly supported"* and *"Image optimization: Partially supported"* fall short. Raised from 3 in v0.2.1 on that evidence |
+| 9 | **Local dev, testing, deploy, ops** | **5** — `wrangler deploy` auto-detects; C3 scaffold | **5** — `wrangler deploy` auto-detects; Vite plugin gives prod-like local runtime | **3** — `vinext check`, `vinext init`, separate `dev:vinext`/`build:vinext` scripts; more moving parts |
+| 10 | **Long-term maintenance risk** (maturity, beta dependence) | **5** — stable, widely deployed, adapter maintained by Cloudflare | **4** — mature, but v8 is a young major | **2** — depends on a **beta** reimplementation of another vendor's framework API |
+| | **Total (max 50)** | **43** | **42** | **35** |
+
+### 12.8 Candidate narratives
+
+**A. Astro + `@astrojs/cloudflare` — strongest fit for this product's centre of gravity.**
+Astro is built for exactly this shape: *"designed for creating websites that display large amounts of content (such as blogs, documentation sites, or online stores)"*, shipping *"minimal client-side JavaScript"*, with *"islands"* only where interactivity is needed. `[verified: https://developers.cloudflare.com/workers/framework-guides/web-apps/astro/, 2026-10-26]` On Workers it is a first-class citizen: `wrangler deploy` detects Astro and generates the config, the adapter sets `output: 'server'`, and static routes opt out per page with `export const prerender = true`. `[verified: https://developers.cloudflare.com/workers/framework-guides/web-apps/astro/, 2026-10-26]`
+
+The honest weakness is criterion 3. A form-heavy admin inside a content framework means islands, and island boundaries are where complexity hides. That is a real cost — but it is paid once, in the admin, and the admin is used by **one** person. The public site, which is the commercial asset and the SEO surface, gets the framework's full strength.
+
+**B. React Router v8 + Cloudflare Vite plugin — the runner-up, and genuinely close.**
+Cloudflare describes it as *"a full-stack React framework"* that *"combines with the Cloudflare Vite plugin to provide a first-class experience"*, and the plugin *"runs your server code in the Workers runtime, ensuring your local development environment is as close to production as possible"*. `[verified: https://developers.cloudflare.com/workers/framework-guides/web-apps/react-router/, 2026-10-26]` Loaders/actions are the best-in-class answer to admin CRUD, validation round-trips and optimistic UI. If the admin were the dominant surface, this would win outright.
+
+Two documented caveats: prerendering and SPA mode are not supported with the Cloudflare Vite plugin (so the site is SSR-only), and the React admin-template ecosystem applies, which helps criterion 7.
+
+**C. Next.js via `vinext` — capable, and the riskiest.**
+`vinext` is *"a Vite plugin that reimplements the Next.js API surface"*, supporting App Router, RSC, Server Actions, SSR with streaming, and static generation; *"`next/*` imports: Mostly supported"*; image optimisation *"partially supported"*. `[verified: https://developers.cloudflare.com/workers/framework-guides/web-apps/nextjs/, 2026-10-26]` It is also explicitly **beta**, with a compatibility dashboard and a `vinext check` step that Cloudflare tells you to run before adopting it for production. Adopting it means betting a small business's CMS on a reimplementation of a third party's API, where a Next.js release can outrun the reimplementation.
+
+**What was corrected here in v0.2.1, and what was not.** This candidate's identity was re-checked against the live documentation and **stands as written**: `vinext` is what Cloudflare's Next.js guide recommends, it is described there as beta, and the OpenNext adapter is the documented fallback. An earlier audit suspected these quotations were fabricated; they are not, and the provenance note in §12.6 records the verification. What *did* change is one score. Criterion 8 (runtime compatibility) was set to **3** on a reading of the guide that underweighted its own feature table — that table marks App Router, RSC, Server Actions, SSR with streaming, static generation, ISR, middleware **and Cloudflare bindings** as "Supported", reserving "mostly"/"partially" for `next/*` imports and image optimisation only. **3 → 4** is the defensible correction.
+
+Criterion 10 (long-term maintenance risk) stays at **2**, deliberately, and the audit's suggestion to raise it to 3 was **not** adopted. The reason is concrete rather than conservative: the guide itself says *"vinext is in beta"* and instructs you to run a compatibility check *"before adopting it for existing production application[s]"*. A beta reimplementation of another vendor's API is the textbook definition of maintenance risk for a small business with one operator and no in-house engineering. Moving it to 3 would make the number match a preferred narrative rather than the evidence.
+
+The audit also suggested recasting candidate C entirely as `@opennextjs/cloudflare`. That was **rejected**, because the documentation does not support it: Cloudflare positions OpenNext as the path for teams *"already on OpenNext"*, not as the recommended default. Rewriting candidate C as OpenNext would have made the document less accurate in the name of appearing more conservative. The honest position is that the endorsed path is also the beta path — which is precisely why this candidate is ranked third.
+
+### 12.9 Recommendation, runner-up and flip condition
+
+> **Recommendation: Astro + `@astrojs/cloudflare`. Status: Proposed — awaiting owner sign-off.** Not confirmed. No implementation may begin on it until the owner records the decision (`OQ-013`) and the §18.1 Phase 0 gate passes.
+
+**Runner-up: React Router v8 framework mode + Cloudflare Vite plugin** (42 vs 43 — a one-point margin, well inside "defensible").
+
+**Full ranking after the v0.2.1 re-score: Astro 43, React Router 42, Next.js + `vinext` 35 (max 50).** Candidate C's total moved from 34 to 35 on the single criterion-8 correction described in §12.8. **The recommendation does not change, and it does not change because the arithmetic does not move it:** a 35 sits 7–8 points behind both leaders, and the gap is not concentrated in one arguable criterion — it is spread across public-site performance (2), admin ergonomics (3), D1 integration (4 vs 4 vs 3), dev/ops (3) and maintenance risk (2). To invert the ranking on the evidence, candidate C would need to gain roughly 8 points, which no reading of the documented feature table supports.
+
+**Why the margin is honest rather than decisive.** The two candidates tie or nearly tie on criteria 4, 8 and 9. The decision turns on which surface dominates. This product is content/marketing-dominant with a single-operator CMS, which favours Astro on criteria 1, 2 and 10. It is *not* a tie on 3, where React Router is clearly better.
+
+**Exact evidence that would flip the decision to React Router:**
+
+1. A working admin prototype in Astro shows that the island boundary forces either a duplicated data layer or an unacceptable amount of client-side JavaScript (measurable: admin route JS payload, and the number of endpoints duplicating validation).
+2. The chosen free admin template passes the §7.10 licence gate but is a React SPA shell that cannot be decomposed into islands without forking it — collapsing criterion 7 for Astro to ≤ 2.
+3. Cloudflare's Astro adapter develops a documented limitation affecting our routes (e.g. per-route `prerender` behaviour with D1), making criterion 8 fall below 4.
+
+**What would flip the decision toward Next.js + `vinext`?** Nothing short of a structural change in this product's shape or in the adapter's status. Concretely: (a) Cloudflare removing the beta label **and** publishing a stable compatibility guarantee for `next/*` imports and image optimisation; (b) the admin growing into the dominant surface *and* a Next-specific admin template passing §7.10 where the React Router option does not; or (c) the owner mandating Next.js for reasons outside this document (existing team skills, a future migration to a Node host). Even then, the honest reading is that this would move candidate C toward the React Router runner-up rather than past Astro. **Do not treat a score movement alone as a flip condition** — a 35 becoming a 40 through re-scoring still trails, and re-scoring is not evidence.
+
+Conversely, evidence that would confirm Astro beyond doubt: a public-page JS budget met with zero framework JavaScript shipped, and the admin prototype staying under a documented payload target.
+
+**Rejected alternatives (briefly):**
+
+| Alternative | Why not |
 |---|---|
-| Vercel alignment | First-class support, zero-config deploys, preview deployments, image optimisation |
-| SEO capability | SSR/SSG/ISR produce complete HTML per page; metadata API for titles, canonical, OG |
-| CMS API in the same app | Route Handlers provide the admin API without a second service |
-| Routing | File-based routes map cleanly to the Indonesian slug sitemap (§5.1) |
-| Ecosystem & longevity | Largest React meta-framework ecosystem; long-term maintenance and hiring pool |
-| Constraint fit | Works with SQLite-compatible HTTP drivers (libSQL) from serverless functions |
+| **SvelteKit / Nuxt / SolidStart** | Viable on Workers, but a smaller hiring/maintenance pool for a small business, and no advantage on criteria 1–5 that justifies the risk |
+| **Next.js + `@opennextjs/cloudflare`** | Real, documented and production-used, but Cloudflare's own guide now positions it as the path for teams *"already on OpenNext"* rather than the default. It carries genuine friction: partial feature support, larger bundles, longer cold starts, and a build step that can break on Next.js minor upgrades. Scored inside candidate C's rationale rather than as a fourth column — see §12.8 |
+| **Next.js + `vinext`** | The documented default for Next.js on Workers, and therefore a legitimate candidate — but **beta**, per Cloudflare's own wording. Rejected as a *recommendation* for a one-operator CMS on maintenance-risk grounds (`RISK-014`), not on capability grounds |
+| **Hono + hand-rolled frontend** | Maximum control, minimum magic — but we would rebuild routing, forms, and rendering that all three candidates provide, with no owner benefit |
+| **WordPress** | Rejected in v0.1 and still rejected: bespoke brand, controlled stack, and the SQLite/D1 direction would be lost |
+| **Static site generator only (no CMS runtime)** | Fails the core requirement: the owner must edit content without a developer or a deploy |
+| **Cloudflare Pages** (instead of Workers) | Workers is the owner-confirmed runtime and now hosts static assets directly; Pages would add a second, converging platform for no gain |
 
-Alternatives considered and not chosen: Astro (excellent for content, but the admin API and interactive editing push complexity into a second service), SvelteKit/Remix (viable, smaller ecosystem for long-term maintenance by a small business), WordPress (rejected: the requirement is a bespoke brand and a controlled stack, and the SQLite direction would be lost).
+### 12.10 What the framework decision does **not** change
 
-**This choice is documented, not final.** The owner approved "Node.js + Vercel + SQLite direction" and delegated framework selection to documentation. Next.js is therefore the working choice while remaining listed as *Proposed — awaiting owner sign-off* in §13.4. Swapping frameworks later requires a PRD revision.
-
-### 12.3 Vercel constraints that shape the design
-
-| Constraint | Consequence |
-|---|---|
-| Serverless/edge functions are stateless and short-lived | No in-memory cache as source of truth; sessions and data live externally |
-| Deployment filesystem is read-only at runtime; `/tmp` is ephemeral | **No SQLite file writes; no upload writes** (§13.2, §13.3) |
-| Each deployment is a new immutable bundle | A `.db` inside the bundle is a frozen snapshot; writes are lost |
-| Function duration and payload limits | Uploads go to object storage (direct or pre-signed) rather than through long-running functions where avoidable |
-| Cold starts | Keep DB connections per-invocation; use HTTP-based drivers |
-| Build-time vs runtime env | Secrets must be runtime env vars, never build-time inlined into the client |
-
-Region: choose the Vercel region closest to Indonesian users and to the database primary (e.g. Singapore) — **to be verified** (`OQ-007`).
+Whatever is chosen, these hold: D1 for data, R2 for media, server-rendered public HTML, admin at `/admin` with server-side session validation, no ISR-style implicit caching, and the adapter boundaries in §13.3 so storage stays swappable.
 
 ---
 
 ## 13. Database & media persistence decisions
 
-### 13.1 Four separate concepts (do not conflate)
+### 13.1 The three concepts (do not conflate)
 
-1. **SQLite as the data model.** The schema is relational and SQL-based, designed with single-file SQLite heritage (no Postgres-only types, no stored procedures, no `jsonb` operators, no arrays). This is a *modelling* decision and it is **Confirmed**.
-2. **Local SQLite file for development only.** Developers may run against `file:./local.db`. That file is gitignored, never seeded with real customer data, and never referenced by production configuration.
-3. **Production persistence on Vercel.** Vercel's runtime filesystem is read-only and ephemeral. A `.db` file bundled into a deployment cannot accept writes and cannot persist across deployments or invocations. Therefore **a local `.db` file is prohibited in production.** This is a hard constraint, not a preference.
-4. **Proposed production option: Turso (libSQL).** A managed, SQLite-compatible service speaking an HTTP/replica protocol, usable from serverless functions. **Not finalised.** It requires owner approval for vendor dependency, free-tier limits, and cost at scale.
+1. **SQLite as the data model.** D1 *is* SQLite, so the v0.1 modelling decision survives intact: relational schema, SQL, no Postgres-only types, no stored procedures, no arrays. **Confirmed.**
+2. **A local development database — but not a `file:` path in application config.** Under `wrangler dev`, D1 is emulated locally on disk by Wrangler and addressed through the **binding**, not through a connection string. The application code is identical in local and production; only the binding's backing store differs. A `file:./local.db` URL is a *dev-only* concept and must never appear in production configuration. **Confirmed as a constraint.**
+3. **Production persistence: Cloudflare D1 (owner-confirmed).** Data lives in a managed D1 database, not on any filesystem. Redeploying the application cannot lose it, because the Worker holds no data. See §13.2.
 
-### 13.2 Production database options
+### 13.2 Cloudflare D1 — production database
 
-| Option | Fit | Trade-off | Status |
-|---|---|---|---|
-| **Turso (libSQL)** — recommended | SQLite-compatible, HTTP driver, works from Vercel functions, local parity via libSQL file | Vendor dependency; free-tier limits and pricing **to be verified**; replication/consistency semantics must be understood | **Proposed** |
-| Self-hosted libSQL server | Keeps SQLite semantics, no SaaS vendor | Requires a host, backups, patching, monitoring — operational burden for a small business | Alternative |
-| Serverless Postgres (Neon / Vercel Postgres) | Excellent serverless fit, mature backups | **Deviation**: replaces the approved SQLite direction; requires amending this PRD | Alternative — requires approval |
-| SQLite file on Vercel | — | **Prohibited**: read-only/ephemeral filesystem, data loss | Rejected |
-| SQLite on a persistent VM/volume | Technically possible | Contradicts the Vercel-mandatory deployment; new operational burden | Rejected |
+**Why D1 fits.** The v0.1 data model was already SQLite-compatible, so no schema redesign is needed. D1 is a managed SQLite database reachable from a Worker through a binding (`env.DB`), with no connection string, no connection pool, and no driver secret to leak. `[verified: https://developers.cloudflare.com/d1/worker-api/d1-database/, 2026-10-26]`
 
-> Any provider recommendation must be **re-verified against current official documentation at implementation time**. Do not assert specific current pricing, row limits, storage limits, or replication behaviour as fact in code comments, marketing, or planning — describe them as "to be verified".
+#### 13.2.1 Semantics that change the design
 
-### 13.3 Media persistence
-
-Uploads written to the Vercel runtime filesystem are lost or fail (read-only). Media must live in object storage and be referenced by public CDN URL.
-
-| Candidate | Notes | Status |
+| Property | Documented behaviour | Design consequence |
 |---|---|---|
-| **Vercel Blob** | Native to the platform, simple token setup, CDN delivery | Pending approval |
-| **Cloudinary** | Strong transformation pipeline; free tier **to be verified** | Pending approval |
-| **S3-compatible (e.g. Cloudflare R2)** | Low egress cost, portable, standard API | Pending approval |
-| **Supabase Storage** | S3-like with policies; adds a second vendor surface | Pending approval |
+| **Transactions** | D1 operates in **auto-commit**. `batch()` runs statements *"sequentially, non-concurrently"*, and *"if a statement in the sequence fails, then an error is returned for that specific statement, and it aborts or rolls back the entire sequence"* — i.e. batched statements **are** a SQL transaction. `[verified: https://developers.cloudflare.com/d1/worker-api/d1-database/, 2026-10-26]` | **There is no interactive transaction** (no `BEGIN` … hold … `COMMIT` across multiple round trips). Every multi-step write must be expressed as **one `batch()` call**. This is the single most important D1 constraint for the admin (§13.2.2) |
+| Query concurrency | Each database is single-threaded and processes queries one at a time; throughput ≈ 1 / query duration | Prefer fewer, batched requests over many small ones `[verified: https://developers.cloudflare.com/d1/platform/limits/, 2026-10-26]` |
+| Queries per invocation | 1,000 (Paid) / 50 (Free); **a `batch()` counts as one query**, not one per statement | Batching is both a correctness and a capacity strategy `[verified: same]` |
+| Max SQL statement length | 100 KB | Long generated SQL must be split `[verified: same]` |
+| Max bound parameters | 100 per query | Bulk inserts must be chunked `[verified: same]` |
+| Max row / string / BLOB size | 2 MB | No giant JSON blobs in a single row; store large bodies as text within this bound `[verified: same]` |
+| Max database size | 10 GB (Paid) / 500 MB (Free); the 10 GB cap **cannot be raised** | Far beyond this product's needs, but it is a hard ceiling to record, not a soft one `[verified: same]` |
+| SQL query duration | 30 s (Cloudflare API limit) | Irrelevant for CMS queries; relevant for bulk data migrations `[verified: same]` |
+| Simultaneous connections | 6 per Worker invocation | Do not fan out parallel D1 calls unnecessarily `[verified: same]` |
+| Time Travel | 30 days (Paid) / 7 days (Free) point-in-time recovery | A real recovery capability — but **not** a substitute for a tested export (§13.2.5) `[verified: same]` |
 
-Requirements for whichever provider is approved: public CDN URL stored in the database (`FR-107`), random unguessable keys (`FR-102`), content-type plus magic-byte validation (`FR-103`), per-file size limit (`FR-104`), EXIF stripping (`FR-105`), responsive variants (`FR-106`), deletion cleanup (`FR-109`), and a swap-in adapter interface (`FR-101`).
+> These figures are **documented limits as of 2026-10-26** and are quoted with their source. They are volatile. Re-verify against the linked pages at implementation time; do not hard-code them into copy, comments, or UI.
 
-Adapter interface (shape only — not an implementation):
+#### 13.2.2 The batch rule, applied to real admin operations
+
+Every operation below **must** be a single `batch()`, or it is not atomic:
+
+| Operation | Statements that must commit together |
+|---|---|
+| Publish a product | `UPDATE products SET status, published_at` → `INSERT INTO audit_log` → `INSERT INTO slug_history` (only if the slug changed) |
+| Change a published slug | `INSERT INTO slug_history (old_slug)` → `UPDATE products SET slug` → `INSERT INTO audit_log` |
+| Unpublish / archive | `UPDATE products SET status` → `INSERT INTO audit_log` → purge-cache bookkeeping |
+| Delete media with references | `DELETE FROM media` → `INSERT INTO audit_log` (object deletion in R2 is **not** transactional — see §13.3.6) |
+| Create admin session | `INSERT INTO sessions` → `INSERT INTO audit_log` |
+
+The **cache purge** and the **R2 object deletion** are deliberately outside the batch: they are not database operations and cannot participate in a SQL transaction. Their ordering and failure handling are specified in §13.3.6 (`FR-191`).
+
+#### 13.2.3 Migrations
+
+- Migrations are `.sql` files in a version-controlled **`migrations/`** directory. Wrangler records applied migrations in a `d1_migrations` table. `[verified: https://developers.cloudflare.com/d1/reference/migrations/, 2026-10-26]`
+- Applied with `wrangler d1 migrations apply <database_name>` — `--local` for the local database, `--remote` for preview/production. `[verified: same]`
+- **Never** auto-migrate on request. Migrations are an explicit, reviewed deploy step (`RISK-008` unchanged).
+- If an ORM writes nested migration directories (Drizzle does), `migrations_pattern` must be configured; `wrangler d1 migrations create` only writes top-level files. `[verified: same]`
+- Migration files are **append-only** once applied to any shared environment. Editing an applied migration is a defect, not a fix.
+- `PRAGMA defer_foreign_keys = true` is available when a migration must violate FKs temporarily. `[verified: same]`
+
+#### 13.2.4 Local development parity
+
+`wrangler dev` runs the Worker in `workerd` locally with a local D1 instance, so the same binding, the same SQL, and the same dialect are exercised in development. `[verified: https://developers.cloudflare.com/d1/best-practices/local-development/, 2026-10-26]` Parity is therefore structural, not aspirational — but it is **not** identity: local D1 is a single-node emulation, so concurrency, replication lag and true latency must be validated in preview. Seed data is development-only and contains no fabricated business facts (§13.2.6).
+
+#### 13.2.5 Backup, export and recovery — targets, not guarantees
+
+| Mechanism | What it gives | Limit of the guarantee |
+|---|---|---|
+| **Time Travel** (point-in-time restore) | Restore to a timestamp within the retention window (30 days Paid / 7 days Free) `[verified: https://developers.cloudflare.com/d1/platform/limits/, 2026-10-26]` | Lives inside the same provider account; does not protect against account-level loss or an accidental destructive migration applied *and* aged out |
+| **`wrangler d1 export`** | Logical `.sql` dump; supports `--table`, `--no-schema`, `--output` `[verified: https://developers.cloudflare.com/d1/best-practices/import-export-data/, 2026-10-26]` | *"A running export will block other database requests"* — schedule it off-peak `[verified: same]` |
+| **Scheduled export to R2** | Off-platform-ish copy, versioned by date; Cloudflare documents a Workflows-based D1→R2 backup example `[verified: https://developers.cloudflare.com/workflows/examples/backup-d1/, 2026-10-26]` | Requires a Cron/Workflow; must be monitored, because a silently failing backup is worse than none |
+
+**RPO ≤ 24 h / RTO ≤ 4 h (`NFR-008`) are *targets*, not contractual guarantees.** They are only credible once a restore has actually been performed into a non-production environment and recorded (`AC-058`). Retention length is an owner decision (`OQ-019`).
+
+#### 13.2.6 Seed strategy
+
+- Development seeds: clearly marked dummy records, loaded only into the local database.
+- Production seeds: **none**. No demo products, no sample articles, no placeholder business facts (`FR-038`, `RISK-006`).
+- The administrator account is created from a one-time setup step or a secret, never from a committed seed (`FR-094`).
+
+### 13.3 Cloudflare R2 — media storage
+
+R2 is the owner-confirmed media store. Buckets are **private by default**; public access is an explicit opt-in. `[verified: https://developers.cloudflare.com/r2/buckets/public-buckets/, 2026-10-26]`
+
+#### 13.3.1 Access paths
+
+| Path | Use | Notes |
+|---|---|---|
+| **Workers binding** (`env.MEDIA`) | Server-side put/get/delete from the admin | No credentials in code; preferred for all Worker-originated operations |
+| **S3 API** | Presigned URLs, tooling, bulk operations | Requires an R2 API token (access key + secret) stored as a **secret**, never in `wrangler.jsonc` |
+| **Public custom domain** | Delivery of published media to browsers | **Required for production.** `r2.dev` is for development only |
+| **`r2.dev` subdomain** | Ad-hoc development | Cloudflare explicitly frames it as *"for non-production use cases"*; caching, WAF, Bot Management and Access are **not** available on it `[verified: same]` |
+
+**Production media is served from a custom domain on the owner's zone, never from `r2.dev`.** This is a hard requirement (`FR-188`) because the `r2.dev` URL cannot be protected, cached, or governed like a production asset, and it would have to be migrated later anyway.
+
+#### 13.3.2 Bucket layout and key convention
+
+Keys are **random and opaque** (`FR-102`) — never derived from the filename, never sequential. A date/type prefix is permitted for operational sanity because it leaks nothing:
+
+```
+media/<yyyy>/<mm>/<uuid>.<ext>        original
+media/<yyyy>/<mm>/<uuid>-<w>.<ext>    pre-generated variant (if the image strategy produces them)
+```
+
+`storage_key` and the resolved public `url` are both stored in D1 (`FR-107`). The URL is absolute and points at the custom domain.
+
+#### 13.3.3 Upload flow
+
+1. Admin authenticates and passes CSRF (`FR-084`).
+2. Server validates: declared MIME, **magic bytes** (`FR-103`), size (`FR-104`), permitted format (`FR-114` — jpeg/png/webp/avif; **SVG rejected**).
+3. Small files: the Worker streams the body to R2 via the binding.
+4. Large files: the Worker issues a **presigned PUT** so the browser uploads directly to R2, bypassing the Worker's CPU and body handling. Presigned URLs grant one operation on one object with an expiry between 1 second and 7 days. `[verified: https://developers.cloudflare.com/r2/api/s3/presigned-urls/, 2026-10-26]` A presigned flow still requires server-side confirmation *after* upload before the media row is trusted (`FR-189`).
+5. EXIF (including GPS) is stripped (`FR-105`) — see the caveat in §13.3.7.
+6. The `media` row is inserted with key, URL, dimensions, size, alt text, checksum.
+
+#### 13.3.4 CORS
+
+Browser-direct uploads need a bucket CORS policy allowing the admin origin, the `PUT` method, and the required headers. CORS is only needed for browser interaction; server-side binding calls do not use it. `[verified: https://developers.cloudflare.com/r2/buckets/cors/, 2026-10-26]` CORS configuration is environment-specific and must be applied to both the preview and production buckets (`FR-190`).
+
+#### 13.3.5 Delivery, caching and lifecycle
+
+- Public media is cached at the Cloudflare edge via the custom domain. Long `Cache-Control` is safe because keys are immutable — a replacement produces a new key, never an overwrite of a cached URL.
+- Cloudflare notes that *"by default, only certain file types are cached"* and that caching all files requires a Cache Everything rule. `[verified: https://developers.cloudflare.com/r2/buckets/public-buckets/, 2026-10-26]` This must be configured and verified, not assumed.
+- Lifecycle rules may expire unreferenced objects after a retention window; orphan reconciliation (§13.3.6) is the primary control, lifecycle is the backstop.
+
+#### 13.3.6 Deletion, orphans and the non-transactional boundary
+
+Deleting a media row and deleting the R2 object are **two systems that cannot share a transaction**. The rule:
+
+1. Delete the R2 object **first**, then the D1 row. If the D1 delete fails, the result is a row pointing at a missing object — detectable and repairable.
+2. The reverse order would leave an unreferenced object — invisible and therefore worse.
+3. A **reconciliation job** (scheduled) lists R2 keys and compares them against `media.storage_key`, reporting orphans both ways. This is a requirement (`FR-191`), not an optional nicety, precisely because the boundary is non-transactional.
+
+#### 13.3.7 Known limits of this approach (stated honestly)
+
+- **No `sharp`.** Server-side resizing is not viable (§12.2.1). Variants must be pre-generated, produced by an external step, produced client-side before upload, or delegated to Cloudflare Images. `[unverified — the chosen mechanism is an open decision]`
+- **EXIF stripping without a native library** is non-trivial. A pure-JS EXIF parser can strip metadata blocks for JPEG, but coverage across formats must be tested; if a format cannot be stripped reliably, either reject it or document the residual risk. **Do not claim EXIF stripping works for a format that has not been tested.**
+- **Magic-byte validation** must be implemented explicitly — a browser-supplied `Content-Type` is untrusted input.
+
+#### 13.3.8 Storage adapter boundary (unchanged in intent, updated in target)
 
 ```
 putObject({ key, body, contentType }) -> { url, key }
 deleteObject({ key }) -> void
 getPublicUrl({ key, variant? }) -> string
-replaceObject({ key, body, contentType }) -> { url, key }
+replaceObject({ key, body, contentType }) -> { url, key }   // may be implemented as put-new-key + update-row
 ```
 
-Business logic depends on the interface, never on a provider SDK directly. Swapping providers must be one adapter implementation plus a migration of stored URLs.
+Business logic depends on this interface, never on the R2 binding directly. R2 is confirmed as the implementation, but the boundary is retained so a future migration is one adapter plus a URL migration — and so tests can use an in-memory adapter. `replaceObject` is explicitly allowed to be implemented as *write a new key, then update the row atomically*, because R2 objects are immutable in practice once cached.
 
-### 13.4 Decision table
+### 13.4 Decision table (the single decision log)
+
+Status vocabulary: **Confirmed** = decided by the owner; **Proposed** = documented recommendation awaiting sign-off; **Open** = not decided, must not be built on; **Superseded** = recorded for history in §13.7, do not implement.
 
 | ID | Area | Leading option | Status | Owner action |
 |---|---|---|---|---|
-| D-01 | Runtime | Node.js + TypeScript | **Confirmed** | — |
-| D-02 | Framework | Next.js App Router + React + TypeScript | **Proposed** | Sign off or request alternative |
-| D-03 | Hosting | Vercel | **Confirmed** | — |
+| D-01 | Runtime | **Cloudflare Workers** (V8 isolates / `workerd`), TypeScript | **Confirmed** (owner) | — |
+| D-02 | Framework | Astro + `@astrojs/cloudflare` (runner-up: React Router v8) — §12.9 | **Proposed** | Sign off (`OQ-013`) or choose runner-up |
+| D-03 | Hosting | **Cloudflare Workers** | **Confirmed** (owner) | — |
 | D-04 | Data model | SQLite-compatible relational schema | **Confirmed** | — |
-| D-05 | Local dev DB | `file:./local.db`, gitignored | **Confirmed** (constraint) | — |
-| D-06 | Production DB | Turso (libSQL) | **Proposed** | Approve vendor + accept free-tier limits |
-| D-07 | ORM | Drizzle ORM + `@libsql/client` (Prisma as alternative) | **Proposed** | Sign off |
-| D-08 | Media storage | Vercel Blob / Cloudinary / R2 / Supabase Storage | **Open** | Choose one |
-| D-09 | Admin template | None selected — evaluation only (§7.10) | **Open** | Approve shortlist, then one template |
-| D-10 | Auth library | Auth.js or vetted session library | **Proposed** | Sign off |
-| D-11 | Rich text editor | Tiptap / Lexical / Markdown+preview | **Open** | Approve after trial |
-| D-12 | Rich text storage | Sanitised HTML vs structured JSON | **Open** | Decide with editor choice |
-| D-13 | Vercel region | Closest to users + DB (e.g. Singapore) | **Open** | Confirm after D-06 |
-| D-14 | Domain & DNS | Owner-provided domain | **Open** | Provide domain |
-| D-15 | Backups | Provider snapshots + scheduled logical dump | **Proposed** | Approve retention |
-| D-16 | Analytics | None in MVP (optional privacy-friendly later) | **Open** | Confirm deferral |
+| D-05 | Local dev DB | Wrangler's local D1 via binding; **no `file:` URL in production config** | **Confirmed** (constraint) | — |
+| D-06 | Production DB | **Cloudflare D1** | **Confirmed** (owner) | — |
+| D-07 | ORM / query layer | Drizzle ORM with D1 driver, or plain prepared statements — not yet chosen | **Proposed** | Sign off after a spike (`OQ-020`) |
+| D-08 | Media storage | **Cloudflare R2** | **Confirmed** (owner) | — |
+| D-09 | Admin template | None selected — evaluation only (§7.10) | **Open** | Approve shortlist, then one template (`OQ-020`) |
+| D-10 | Auth library | Auth.js or vetted session library | **Proposed** | Sign off (`OQ-004`) |
+| D-11 | Rich text editor | Tiptap / Lexical / Markdown+preview | **Open** | Approve after trial (`OQ-005`) |
+| D-12 | Rich text storage | Sanitised HTML vs structured JSON | **Open** | Decide with editor choice (`OQ-005`) |
+| D-13 | ~~Vercel region~~ | **Superseded** — replaced by D-20 | **Superseded** | See §13.7 |
+| D-14 | Domain & DNS | Owner-provided domain, **zone on Cloudflare** | **Open** | Provide domain + account access (`OQ-017`) |
+| D-15 | Backups | Time Travel + scheduled `d1 export` to R2 | **Proposed** | Approve retention + RPO/RTO (`OQ-019`) |
+| D-16 | Analytics | None in MVP (optional privacy-friendly later) | **Open** | Confirm deferral (`OQ-012`) |
+| D-17 | ~~Next.js App Router~~ | **Superseded** — framework re-opened in §12.6 | **Superseded** | See §13.7 |
+| D-18 | ~~Turso (libSQL)~~ | **Superseded** — replaced by D-06 (D1) | **Superseded** | See §13.7 |
+| D-19 | Image optimisation on Workers | Cloudflare Images/Resizing (paid tiers) vs client-side pre-resize vs pre-generated variants | **Open** | Decide before P2; `sharp` is not an option (`OQ-014`) |
+| D-20 | D1 primary location / Workers placement | Closest to Indonesian users, measured not assumed | **Open** | Confirm after provisioning (`OQ-018`) |
+| D-21 | Password hashing algorithm | PBKDF2-SHA256 via Web Crypto (leading) vs Argon2id vs Workers-compatible scrypt | **Open** | Benchmark, then approve (`OQ-015`) |
+| D-22 | Admin access model | App login only, vs Cloudflare Access (Zero Trust) in front of `/admin`, vs both | **Open** | Decide tier/cost (`OQ-015`) |
+| D-23 | Workers plan tier | Free vs Paid — the two tiers differ by orders of magnitude on CPU budget and D1 capacity. **Documented figures: §12.2 (Workers CPU/memory) and §13.2.1 (D1 limits); do not restate them here.** | **Open** | Decide before launch (`OQ-018`, `RISK-016`) |
+| D-24 | R2 public delivery domain | Custom domain on the owner's zone (**required** for production) | **Open** | Provide hostname (`OQ-017`) |
+| D-25 | ~~Vercel Blob / Cloudinary media~~ | **Superseded** — replaced by D-08 (R2) | **Superseded** | See §13.7 |
+| D-26 | ~~ISR caching strategy~~ | **Superseded** — replaced by §12.4 | **Superseded** | See §13.7 |
 
 ### 13.5 Schema outline (proposed, SQLite-compatible)
 
@@ -949,11 +1252,44 @@ Constraints: integer primary keys or ULIDs (SQLite-friendly); timestamps stored 
 
 ### 13.6 Migration, seed, dev/prod parity
 
-- Migrations are versioned SQL files generated by the ORM and applied as an explicit step — **never** automatically on request in production (`RISK-008`).
+- Migrations are versioned `.sql` files in `migrations/`, applied by Wrangler as an explicit step — **never** automatically on request in production (`RISK-008`, §13.2.3).
 - Seed data contains **no fabricated business facts** and no fake products or articles. Development seeds may use clearly-marked dummy records, gated to development only.
-- The administrator account is created from environment configuration or a one-time setup flow, never from a committed seed with a default password.
-- Development and production run the **same schema**; only the driver/URL differs (`NFR-017`). SQLite dialect differences between a local libSQL file and remote libSQL must be exercised in tests.
-- Data must survive redeployments and framework upgrades (`NFR-016`, `AC-058`).
+- The administrator account is created from a one-time setup flow or a secret, never from a committed seed with a default password.
+- Local and production run the **same schema, the same SQL and the same binding**; only the backing database differs (`NFR-017`). Local D1 is an emulation, so concurrency and latency must be exercised in preview, not local (`FR-195`).
+- Data must survive redeployments and framework upgrades (`NFR-016`, `AC-058`) — on D1 this is structural, since the Worker holds no data.
+
+### 13.7 Superseded decisions register (v0.1 → v0.2)
+
+Retained deliberately. A future maintainer must be able to see what was decided, why it changed, and what replaced it — without resurrecting it.
+
+| Superseded | v0.1 rationale | Why superseded | Replacement | Date |
+|---|---|---|---|---|
+| **Vercel hosting** (D-03, D-13) | First-class Next.js support, preview deploys, image optimisation | Owner decision: runtime is Cloudflare Workers | Workers (§12.2) | 2026-10-26 |
+| **Turso / libSQL as production DB** (D-06, D-18) | SQLite-compatible over HTTP, usable from serverless functions | Owner decision: D1 is the database; D1 is SQLite natively, so no driver indirection is needed | Cloudflare D1 (§13.2) | 2026-10-26 |
+| **Vercel Blob / Cloudinary / Supabase Storage** (D-08, D-25) | Provider-agnostic media with an adapter | Owner decision: R2 is the media store | Cloudflare R2 (§13.3) | 2026-10-26 |
+| **ISR (Incremental Static Regeneration)** (D-26) | Vercel-specific revalidation of static pages | Does not exist on Workers; implicit background regeneration has no equivalent and no safe invalidation story | On-demand SSR + `Cache-Control` + explicit purge by URL (§12.4) | 2026-10-26 |
+| **Next.js App Router as the framework** (D-02, D-17) | Platform alignment with Vercel; largest React ecosystem | The alignment argument died with the platform; re-evaluated on merits (§12.6–§12.9) | Framework is **Proposed**, not selected (`OQ-013`) | 2026-10-26 |
+| **`@libsql/client` as the DB driver** (D-07) | Turso's client | Turso is no longer the database | D1 binding; ORM choice reopened (`OQ-020`) | 2026-10-26 |
+
+**Do not reintroduce any of these without an owner-approved PRD revision.** A proposal that quietly reintroduces Vercel-shaped patterns — ISR, `@vercel/*`, Vercel Blob, `vercel.json`, an "edge runtime" configuration — is a documentation defect, not a technical preference.
+
+### 13.8 v0.1 requirements amended (not deleted) by the platform switch
+
+IDs are stable. The wording changed because the old wording described a platform this project no longer uses. Each amendment is listed so the change is auditable.
+
+| Requirement (amended) | v0.1 wording (abridged) | v0.2 wording | Why |
+|---|---|---|---|
+| `FR-081` | "Argon2id (preferred) or bcrypt cost ≥ 12" | Property-based: slow, salted, one-way hash; **algorithm Open** (`OQ-015`) | Native-cost hashing may exceed the Workers CPU budget |
+| `FR-101` | "provider-agnostic adapter" | Adapter retained; **R2 is the confirmed implementation** | Media provider is no longer open, but the boundary still earns its keep for testing and exit |
+| `FR-106` | "responsive width variants generated" | Variants must be **pre-generated / external / client-side** — not generated by `sharp` in a Worker | No native image processing in a Worker (`D-19`) |
+| `FR-113` | "optimised formats with fallbacks" | Unchanged in intent; delivery may rely on Cloudflare Images or pre-generated files | Same |
+| `FR-115` | "oversized images downscaled on upload" | Downscaling happens **before** storage (client or external step) or is delegated | Same |
+| `FR-125` | "trigger revalidation of affected public paths" | "purge the affected cached URLs" — explicit, not ISR-style revalidation | No ISR (§12.4) |
+| `FR-179` | "revalidates all affected public paths" | "purges all affected cached URLs" | Same |
+| `NFR-001` | Measured "on a Vercel preview URL" | Measured on a **Workers preview deployment** | Platform |
+| `NFR-019` | "optimised formats with fallbacks, responsive images" with no statement of where transformation happens | Delivery attributes (formats with fallbacks, explicit dimensions, `srcset`/`sizes`, lazy loading) are in scope and testable; **on-Workers transformation is explicitly out of scope** and delegated to `D-19` | `sharp` cannot run in a Worker (§12.2.1) |
+
+Full row text appears in place; this table is the change record, not a second source of truth. The amended rows above are the only places where an existing ID's wording changed; every other v0.1 requirement is carried forward verbatim.
 
 ---
 
@@ -961,7 +1297,7 @@ Constraints: integer primary keys or ULIDs (SQLite-friendly); timestamps stored 
 
 | ID | Requirement | Target / condition | Priority | Phase | Verification |
 |---|---|---|---|---|---|
-| `NFR-001` | Core Web Vitals on public pages | LCP ≤ 2.5 s, CLS < 0.1, INP < 200 ms at p75; Lighthouse mobile (4× CPU throttle, Slow 4G), production build on a Vercel preview URL, cold and warm cache | MUST | P5 | `AC-060` |
+| `NFR-001` | Core Web Vitals on public pages | LCP ≤ 2.5 s, CLS < 0.1, INP < 200 ms at p75; Lighthouse mobile (4× CPU throttle, Slow 4G), production build on a **Workers preview deployment**, cold and warm cache | MUST | P5 | `AC-060` |
 | `NFR-002` | Server response time | TTFB ≤ 800 ms for cached/static pages measured from Indonesia; uncached DB-backed pages ≤ 1.5 s p75 | SHOULD | P5 | `AC-060` |
 | `NFR-003` | Accessibility | WCAG 2.1 AA: contrast ≥ 4.5:1 body text, ≥ 3:1 large text and UI boundaries; keyboard operable; visible focus; labelled forms; error identification | MUST | P5 | `AC-060` |
 | `NFR-004` | Responsive behaviour | No horizontal scroll ≥ 320 px; layouts per §6.9; touch targets ≥ 44×44 px | MUST | P4 | `AC-060` |
@@ -982,6 +1318,31 @@ Constraints: integer primary keys or ULIDs (SQLite-friendly); timestamps stored 
 | `NFR-019` | Image optimisation | Modern formats with fallbacks, explicit dimensions, `srcset`/`sizes`, lazy loading below the fold | SHOULD | P5 | `AC-060` |
 | `NFR-020` | Privacy & data minimisation | Collect only what the contact form needs; publish a privacy policy; no full PII in logs; hash IPs used for rate limiting | MUST | P4 | `AC-013` |
 | `NFR-021` | General rate limiting | Public form and auth endpoints rate-limited; abuse returns 429 with a friendly message | SHOULD | P5 | `AC-031` |
+
+**v0.2 additions — Workers-specific (`NFR-041`–`NFR-060`).** All targets below are **targets with stated test conditions**, not guarantees, and none is a fabricated benchmark.
+
+| ID | Requirement | Target / condition | Priority | Phase | Verification |
+|---|---|---|---|---|---|
+| `NFR-041` | Cold-start expectation | No cold-start penalty separate from normal request latency is claimed or assumed; first-request latency is measured on a Workers preview deployment, not extrapolated from Node.js | MUST | P5 | `AC-076` |
+| `NFR-042` | CPU-time budget as a design constraint | Every request path is profiled against the plan's CPU limit **as documented in the §12.2 limits table** (re-verify at implementation time; the figure is not restated here). Any path exceeding 50 % of the budget in the chosen tier is redesigned, not shipped | MUST | P2 | `AC-076` |
+| `NFR-043` | Streaming responses | Public pages and file downloads stream rather than buffer, so time-to-first-byte is not gated on full render | SHOULD | P5 | `AC-076` |
+| `NFR-044` | Cache hit ratio | ≥ 80 % of public HTML requests served from the Cloudflare edge cache **under a defined load test** (steady read traffic, purge events excluded). Reported with the test parameters, never as a bare percentage | SHOULD | P5 | `AC-072` |
+| `NFR-045` | Cache correctness | A purge takes effect within 30 s of a publish action; a draft is never served from cache to an anonymous visitor | MUST | P3 | `AC-070`, `AC-072` |
+| `NFR-046` | D1 query efficiency | Every public listing query uses an index and completes in < 50 ms p75 on the production dataset size; no unbounded table scan on a public route | MUST | P5 | `AC-076` |
+| `NFR-047` | D1 write atomicity | No admin operation leaves a partially applied multi-table change; verified by fault injection into a `batch()` | MUST | P2 | `AC-069` |
+| `NFR-048` | D1 capacity headroom | Storage and rows-read/written stay below 50 % of the plan's included limits at launch; the plan tier is revisited if projected usage crosses 70 % | SHOULD | P6 | `AC-077` |
+| `NFR-049` | R2 delivery latency | Media served from the custom domain returns in < 300 ms p75 for a cache hit, measured from Indonesia | SHOULD | P5 | `AC-076` |
+| `NFR-050` | Upload throughput | A 5 MB image uploads successfully over a simulated 3G connection without timing out the Worker; progress or failure is reported to the user | SHOULD | P3 | `AC-064` |
+| `NFR-051` | Upload size ceiling | The enforced per-file limit is documented in the admin UI and consistent between client-side and server-side checks | MUST | P2 | `AC-064` |
+| `NFR-052` | Secret hygiene | Zero secrets in the repository, in `wrangler.jsonc` `vars`, in logs, or in any client bundle; verified by automated scan in CI | MUST | P2 | `AC-080` |
+| `NFR-053` | Bindings discipline | Configuration is read from bindings; `process.env` is not used for application configuration | MUST | P1 | `AC-061` |
+| `NFR-054` | Environment isolation | Preview cannot read or write production D1 or R2; verified by attempting a cross-environment query and confirming failure | MUST | P1 | `AC-073` |
+| `NFR-055` | Observability coverage | Auth failures, publish actions, upload failures and unhandled errors are queryable in Workers Logs with a correlation identifier | MUST | P2 | `AC-078` |
+| `NFR-056` | Backup verifiability | A restore from an export is performed and recorded before launch; a backup that has never been restored is treated as unverified | MUST | P6 | `AC-074` |
+| `NFR-057` | Deployment reproducibility | A clean checkout plus documented secrets can deploy a working build; no undocumented dashboard-only configuration is required | SHOULD | P1 | `AC-061` |
+| `NFR-058` | Dependency Workers-compatibility | Every dependency is confirmed to run on Workers (or is replaced) before adoption; native addons and `fs`-dependent libraries are rejected | MUST | P1 | `AC-061` |
+| `NFR-059` | Graceful platform degradation | A D1 or R2 failure produces a generic error page and a logged event, never a stack trace or a blank screen | SHOULD | P6 | `AC-078` |
+| `NFR-060` | Cost predictability | A documented cost model exists for the chosen plan tier covering requests, CPU, D1 rows, R2 storage/operations and image transformations, with the free-tier ceiling stated explicitly | SHOULD | P6 | `AC-077` |
 
 ---
 
@@ -1053,6 +1414,26 @@ Every criterion is independently verifiable and names the requirement(s) it veri
 | `AC-058` | `NFR-016`, `NFR-017`, `NFR-008` |
 | `AC-059` | `NFR-018` |
 | `AC-060` | `NFR-001`, `NFR-002`, `NFR-003`, `NFR-004`, `NFR-005`, `NFR-006`, `NFR-019` |
+| `AC-061` | `FR-180`, `FR-181`, `FR-193`, `FR-199`, `NFR-053`, `NFR-057`, `NFR-058` |
+| `AC-062` | `FR-183`, `FR-184` |
+| `AC-063` | `FR-182`, `NFR-016` |
+| `AC-064` | `FR-187`, `FR-188`, `FR-189`, `FR-190`, `NFR-050`, `NFR-051` |
+| `AC-065` | `FR-198`, `FR-106`, `FR-115`, `NFR-019` |
+| `AC-066` | `FR-103`, `FR-104`, `FR-114` |
+| `AC-067` | `FR-194`, `FR-082`, `FR-092` |
+| `AC-068` | `FR-046`, `FR-047` |
+| `AC-069` | `FR-185`, `NFR-047` |
+| `AC-070` | `FR-149`, `FR-186`, `NFR-045` |
+| `AC-071` | `FR-143`, `FR-149`, `FR-165`, `FR-150` |
+| `AC-072` | `FR-125`, `FR-179`, `FR-186`, `NFR-044`, `NFR-045` |
+| `AC-073` | `FR-195`, `NFR-054` |
+| `AC-074` | `FR-197`, `NFR-056` |
+| `AC-075` | `FR-191`, `FR-109` |
+| `AC-076` | `NFR-041`, `NFR-042`, `NFR-043`, `NFR-046`, `NFR-049` |
+| `AC-077` | `NFR-048`, `NFR-060` |
+| `AC-078` | `FR-196`, `NFR-055`, `NFR-059` |
+| `AC-079` | `FR-024`, `FR-038`, `FR-152` |
+| `AC-080` | `FR-192`, `FR-127`, `NFR-052` |
 
 **Traceability note.** Every `FR-###` maps to at least one `AC-###`, and every `AC-###` names the `FR-###`/`NFR-###` it verifies. Four NFRs are **process-level** and are verified by the phase exit gates in §18.3 rather than by a single behavioural test: `NFR-007` (reliability), `NFR-010` (error visibility), `NFR-011` (maintainability), and `NFR-014` (dependency policy). They are not untested — they are checked by review and by the "no new unresolved security finding / typecheck and lint pass" exit criteria. When a concrete test is added for any of them, assign it a new `AC-###` from the reserved range and add a row above.
 
@@ -1137,7 +1518,7 @@ Checklist: reading time renders above the configured length threshold; share act
 Given `/admin` while logged out, the user is redirected to `/admin/masuk`; after a valid login the dashboard renders. Invalid credentials return a generic Bahasa Indonesia error that does not reveal whether the email exists.
 
 **`AC-027`** (FR-081)
-The `users` table contains only a password hash, never plaintext. The hash is Argon2id or bcrypt cost ≥ 12. Correct password succeeds, wrong password fails, and no password appears in logs or error responses.
+The `users` table contains only a password hash, never plaintext. The hash is a slow, salted, one-way function whose parameters are recorded with the algorithm name and version; the specific algorithm is whatever `OQ-015` resolves to after benchmarking on the Workers runtime. Each password uses a distinct salt. Correct password succeeds, wrong password fails, and no password appears in logs or error responses. Checklist: the chosen algorithm completes within the plan's CPU budget on the real runtime, and the recorded benchmark is attached to the decision.
 
 **`AC-028`** (FR-082, FR-092) — *Admin route blocked when logged out*
 Given no valid session cookie, requesting any `/admin/*` page or admin API route directly (e.g. via `curl`, bypassing the UI) returns a login redirect for pages and 401 for APIs — no admin data is returned. Given a session deleted server-side (logout elsewhere or expiry), a request carrying the stale cookie is still rejected. Removing middleware configuration must not by itself grant access, because every handler re-validates the session.
@@ -1185,7 +1566,7 @@ The media library paginates and filters and shows dimensions and size per asset.
 Attempting to delete media used by a published product shows a warning listing referencing records and requires explicit confirmation; after confirmation the object is removed from storage and the row deleted. A failed upload leaves no orphan row and no partial object. Upload failures display an Indonesian error message.
 
 **`AC-043`** (FR-111, FR-167)
-Given a product image referenced by a published product, replacing the file shows the new image after revalidation, keeps the media record ID unchanged, and breaks no other page referencing that media.
+Given a product image referenced by a published product, replacing the file shows the new image after the affected cached URLs are purged, keeps the media record ID unchanged, and breaks no other page referencing that media.
 
 **`AC-044`** (FR-120, FR-124, FR-136)
 Uploading a new primary logo and saving settings updates the public header on the next request; the old asset is not auto-deleted; an empty logo slot renders a text fallback rather than a broken image. Favicon and app-icon slots accept uploads and derived sizes are served.
@@ -1197,7 +1578,7 @@ Updating phone, email, address, operating hours, social links, and maps URL upda
 Brand tokens accept only validated formats; invalid values are rejected with a message and never persisted; a preview shows the effect before saving; contrast warnings appear for combinations failing AA. Resetting a settings group restores documented defaults. Typography options are constrained to approved choices.
 
 **`AC-047`** (FR-125, FR-179)
-Given a settings or content change, saving revalidates the affected public paths so the next request shows fresh content, while unaffected cached pages remain cached.
+Given a settings or content change, saving **purges** the affected cached public URLs so the next request shows fresh content, while unaffected cached pages remain cached.
 
 **`AC-048`** (FR-127, FR-139)
 Checklist: no API key, database URL, or token field exists in the settings UI or `settings` table; a secret pasted into a content field is not echoed in public HTML; each settings screen shows a "last saved" timestamp.
@@ -1236,7 +1617,71 @@ Given content created in production (a product, an article, a settings change), 
 Given an image uploaded in production, after a redeploy in which the previous deployment is no longer active, the image URL still resolves from the CDN and the page renders it. Checklist: the media row stores an absolute CDN URL, and deleting a deployment breaks no published page.
 
 **`AC-060`** (NFR-001, NFR-002, NFR-003, NFR-004, NFR-005, NFR-006, NFR-019)
-Given a production build measured with Lighthouse mobile (4× CPU throttle, Slow 4G) on a Vercel preview URL: LCP ≤ 2.5 s, CLS < 0.1, INP < 200 ms, accessibility score ≥ 95, no horizontal scroll at 320/360/768/1024/1280 px. Checklist: skip link, landmarks, one `h1`, visible focus, labelled inputs, 44 px touch targets, `srcset` with explicit dimensions, lazy loading below the fold.
+Given a production build measured with Lighthouse mobile (4× CPU throttle, Slow 4G) on a **Workers preview deployment**: LCP ≤ 2.5 s, CLS < 0.1, INP < 200 ms, accessibility score ≥ 95, no horizontal scroll at 320/360/768/1024/1280 px. Checklist: skip link, landmarks, one `h1`, visible focus, labelled inputs, 44 px touch targets, `srcset` with explicit dimensions, lazy loading below the fold. The measurement environment, plan tier and date are recorded with the result.
+
+---
+
+**v0.2 acceptance criteria (`AC-061`–`AC-080`).** Each is objectively testable and names what it verifies.
+
+**`AC-061`** (FR-180, FR-181, FR-193, FR-199, NFR-053, NFR-057, NFR-058) — *Runs on Workers, not Node*
+Checklist: (a) `wrangler dev` starts the app and serves every public route locally; (b) the deployed build runs on the Workers runtime and returns correct HTML for `/`, `/produk`, `/blog`, `/kontak`; (c) `wrangler.jsonc` pins `compatibility_date` and declares `nodejs_compat`; (d) no application configuration is read from `process.env` — removing an expected binding produces the documented startup error, not `undefined`; (e) a clean checkout plus documented secrets deploys successfully with no undocumented dashboard step; (f) every runtime dependency is recorded as Workers-compatible.
+
+**`AC-062`** (FR-183, FR-184) — *D1 migration from empty, idempotent on re-run*
+Given an empty D1 database, running `wrangler d1 migrations apply <db> --local` creates the full schema with no error. Running the same command again applies **zero** migrations and exits successfully (idempotent). Checklist: no connection string, credential or `file:` URL exists in application configuration; the `migrations/` directory is version-controlled; each migration file is append-only; `d1_migrations` records the applied set.
+
+**`AC-063`** (FR-182, NFR-016) — *Data survives redeploy*
+Given a product, an article and a settings change created in the deployed environment, redeploying the application (new version, rollback, or a cold start) leaves all records unchanged and readable. Checklist: no production code path writes application data to the filesystem; no `.db`/`.sqlite` file is committed or bundled; a query run after redeploy returns the same rows.
+
+**`AC-064`** (FR-187, FR-188, FR-189, FR-190, NFR-050, NFR-051) — *Image retrievable from R2 after redeploy*
+Given an image uploaded through the admin, the resulting URL is on the R2 custom domain (not `r2.dev`) and returns the image with HTTP 200. After a redeploy in which the previous version is no longer active, the same URL still resolves and the page renders it. Checklist: the `media` row stores the absolute custom-domain URL and the storage key; CORS is configured for the admin origin in both environments; a presigned upload, when used, expires and is rejected after expiry; the documented size limit matches between client and server.
+
+**`AC-065`** (FR-198, FR-106, FR-115, NFR-019) — *No server-side image processing in a Worker*
+Checklist: no `sharp`, `jimp`, `canvas` or equivalent native/CPU-heavy image library is present in the deployed bundle; no request path performs pixel transformation; `srcset` references pre-existing variant keys or Cloudflare Images URLs; an oversized upload is either downscaled before reaching the Worker or rejected with a clear message.
+
+**`AC-066`** (FR-103, FR-104, FR-114) — *Upload rejects bad MIME, bad magic bytes, oversize*
+Given a valid JPEG under the limit, the upload succeeds. Given a file named `.png` whose bytes are an HTML/PHP payload, the upload is rejected on magic-byte mismatch. Given a file above the limit, the upload is rejected with a clear Bahasa Indonesia message and **no object and no row** are created. Given an SVG, the upload is rejected. In every rejection case, no partial object remains in R2.
+
+**`AC-067`** (FR-194, FR-082, FR-092) — *Admin blocked server-side when unauthenticated*
+Given no session cookie, `GET /admin`, `GET /admin/produk` and every admin API route return a redirect to `/admin/masuk` (pages) or **401** (APIs) — with no admin data in the body. This holds when the request is made with `curl`, bypassing the UI. Given a session row deleted server-side, a request carrying the old cookie is still rejected. Checklist: session signing uses Web Crypto HMAC; the cookie is `HttpOnly`, `Secure` in production, `SameSite=Lax`/`Strict`; no token is stored in `localStorage`/`sessionStorage`; removing route middleware does not grant access, because each handler re-validates.
+
+**`AC-068`** (FR-046, FR-047) — *No price renders inquiry CTA, never "Rp 0"*
+Given a product with `price_display = inquiry` and a null `price_amount`, the catalog card and detail page render `Hubungi kami untuk harga` and the "Tanya Harga via WhatsApp" CTA. The rendered HTML contains neither an empty price element nor the string `Rp 0`. Given a `fixed` product whose amount is null, the renderer falls back to the inquiry text and publishing is blocked. The WhatsApp `text` parameter contains the product name and canonical URL, URL-encoded.
+
+**`AC-069`** (FR-185, NFR-047) — *Atomic batched writes*
+Given a publish action that must update the record, insert an audit row and insert a slug-history row, the operation is issued as one `batch()`. With a fault injected into the third statement, the first two are rolled back: the record's status, the audit log and `slug_history` all show the pre-operation state. Checklist: no code path issues `BEGIN`, holds a transaction open across awaits, or performs a multi-table write as separate awaited calls.
+
+**`AC-070`** (FR-149, FR-186, NFR-045) — *Draft returns noindex and is absent from sitemap*
+Given a draft record, its preview response carries `X-Robots-Tag: noindex, nofollow` and a `noindex` meta tag, and the URL does not appear in `/sitemap.xml`. A request for the draft's public URL returns 404 and never a cached published page. After publishing, the same URL serves the page **without** `noindex` and appears in the sitemap. Checklist: no cache entry can serve a draft body to an anonymous visitor.
+
+**`AC-071`** (FR-143, FR-149, FR-165, FR-150) — *Publish → slug change → old URL 301s*
+Given a published article at `/blog/tips-keamanan`, when the admin changes the slug to `/blog/tips-cctv-rumah` and publishes, then (a) a `slug_history` row exists for the old slug; (b) `GET /blog/tips-keamanan` returns **301** with `Location: /blog/tips-cctv-rumah`; (c) the sitemap contains only the new URL; (d) a second rename redirects the original URL directly to the newest URL in one hop; (e) another record cannot claim the old slug while history is live. Checklist: the redirect survives a redeploy and is not dependent on an in-memory map.
+
+**`AC-072`** (FR-125, FR-179, FR-186, NFR-044, NFR-045) — *Edit visible after purge*
+Given a cached public page, the admin changes its content and saves. Within 30 s, a fresh request returns the new content, while an unrelated cached page remains cached (verified by a cache-status header). A publish action purges the detail page, the listing page and the sitemap. Checklist: admin responses carry `Cache-Control: no-store`; the cache-hit-ratio target in `NFR-044` is reported together with its load-test parameters.
+
+**`AC-073`** (FR-195, NFR-054) — *Preview cannot reach production data*
+Checklist: the preview environment is bound to a different D1 database ID and a different R2 bucket than production; a query issued from preview against a production-only identifier fails; no production secret is present in the preview environment; a record created in preview is absent from production.
+
+**`AC-074`** (FR-197, NFR-056) — *Restore rehearsed*
+Given a scheduled export has produced a dump, restoring that dump into a non-production database completes without error and the restored row counts match the source at export time. Checklist: the restore date, operator and result are recorded; retention matches the approved setting; a backup with no recorded restore is marked unverified.
+
+**`AC-075`** (FR-191, FR-109) — *Deletion and orphan reconciliation*
+Given media referenced by a published product, deletion warns with the referencing records and requires confirmation. On confirmation the R2 object is removed **first**, then the row. If the row delete is forced to fail, the orphan is reported by the reconciliation job rather than silently lost. Checklist: a deliberately orphaned object appears in the reconciliation report; a row pointing at a missing object also appears.
+
+**`AC-076`** (NFR-041, NFR-042, NFR-043, NFR-046, NFR-049) — *Performance measured, not assumed*
+Checklist, all measured on a Workers preview deployment on the target plan tier with the parameters recorded: (a) p75 CPU time per request path is recorded and no path exceeds 50 % of the tier's budget; (b) public listing queries are index-backed and complete under the `NFR-046` target; (c) responses stream (first byte arrives before full render completes); (d) media from the custom domain meets the `NFR-049` target for a cache hit; (e) cold-start behaviour is described from measurement, not extrapolation.
+
+**`AC-077`** (NFR-048, NFR-060) — *Capacity and cost model*
+Checklist: a written cost model lists requests, CPU, D1 rows read/written, D1 storage, R2 storage/operations and any image transformations, with the free-tier ceiling stated; projected launch usage is below 50 % of included limits; the trigger for revisiting the plan tier (70 % projection) is documented.
+
+**`AC-078`** (FR-196, NFR-055, NFR-059) — *Observability and graceful failure*
+Given a failed login, a publish action and a simulated upload failure, each produces a queryable log entry with a correlation identifier and no secret or full PII. Given a simulated D1 outage, a public page returns a generic Bahasa Indonesia error page with a 5xx status, not a stack trace or a blank screen. Checklist: `observability` is enabled in the Worker configuration; errors are not swallowed silently.
+
+**`AC-079`** (FR-024, FR-038, FR-152) — *No fabricated trust claims*
+Checklist: the build output contains no testimonial, certification badge, client logo, award, warranty period, project count or years-of-experience claim that the owner did not supply; no template, seed or default copy pre-fills such a claim; no page promises rankings, positions or traffic.
+
+**`AC-080`** (FR-192, FR-127, NFR-052) — *No secret in the client bundle*
+Checklist: a search of the built client assets finds no API token, database identifier used as a credential, session signing key, or R2 secret; `wrangler.jsonc` `vars` contains no secret value; `.dev.vars` is gitignored and absent from the repository; an automated scan in CI fails the build if a secret pattern is detected.
 
 ---
 
@@ -1247,24 +1692,30 @@ Given a production build measured with Lighthouse mobile (4× CPU throttle, Slow
 | ID | Dependency | Impact if unavailable | Mitigation |
 |---|---|---|---|
 | `DEP-001` | Owner-supplied business facts (address, phone, hours, service area, real product data) | Cannot publish trust-building content or `LocalBusiness` JSON-LD; site launches with thin content | Collect via a structured content checklist before P4; publish only confirmed data; omit rather than invent |
-| `DEP-002` | Vercel account, project, and environment configuration | No deployment target | Provision in P1; document required env vars in `.env.example` once it exists |
-| `DEP-003` | Production database service (Turso or approved alternative) | No production persistence; app cannot launch | Resolve `OQ-002` before P2; adapter pattern keeps the driver swappable |
-| `DEP-004` | Object storage provider + credentials | No media uploads; no product or article images | Resolve `OQ-003` before P2; build against the adapter with a development-only driver |
-| `DEP-005` | Domain name and DNS control | No canonical production URLs; SEO work is provisional | Resolve `OQ-007`; use the Vercel domain until then |
+| `DEP-002` | **Cloudflare account with Workers enabled**, plus Wrangler authenticated locally | No deployment target | Provision before P1; document required secrets in a `.dev.vars.example` once it exists (`OQ-017`) |
+| `DEP-003` | **D1 database** provisioned by the owner (production + preview) | No production persistence; app cannot launch | Owner provisions before P2; `OQ-017` |
+| `DEP-004` | **R2 bucket** + custom domain attached, provisioned by the owner | No media uploads; no product or article images | Owner provisions before P2; `OQ-017` |
+| `DEP-005` | **Domain name + Cloudflare zone ownership** | No canonical production URLs; no R2 custom domain (which requires the zone in the same account) | Resolve `OQ-017` before P2; SEO work is provisional until then |
 | `DEP-006` | Admin template licence verification | Admin UI cannot ship on an unverified licence | Complete §7.10 gate in P3; fall back to a custom minimal shell |
 | `DEP-007` | Vector logo master and reversed/white variant from the designer | Brand cannot be applied to dark surfaces; favicons limited | Track as a brand task; use documented interim treatment (§10.2) |
 | `DEP-008` | Rich text editor selection and storage format | Article and product bodies cannot be authored | Resolve `OQ-005` in P3; start with a minimal editor if delayed |
-| `DEP-009` | Node.js LTS runtime availability on Vercel | Build failure or forced runtime change | Pin an LTS version; re-verify support at implementation time |
+| `DEP-009` | **Framework decision** (`OQ-013`) | No scaffold can be chosen; Phase 1 cannot start | Close the gate in §18.1 before any scaffold work |
 | `DEP-010` | Owner availability for content entry and review | Launch slips; placeholder content risk | Schedule content entry in P6 with a written checklist |
+| `DEP-011` | **Cloudflare account + zone ownership** (same account for bucket custom domain) | Cannot attach an R2 custom domain; cannot manage DNS; production delivery blocked | Owner must confirm ownership and access; `OQ-017`, `RISK-013` |
+| `DEP-012` | **Image-optimisation decision** (`D-19`, `OQ-014`) | Cannot finalise upload pipeline or `srcset` strategy | Decide before P2; interim: pre-generated variants only |
+| `DEP-013` | **Password-hashing decision** (`D-21`, `OQ-015`) | Auth cannot be implemented to a fixed spec | Benchmark PBKDF2/Argon2id on Workers, then approve |
+| `DEP-014` | **Admin access model decision** (`D-22`, `OQ-015`) — app login vs Cloudflare Access | Affects auth scope, cost and threat model | Decide with `OQ-015`; app login is mandatory regardless |
+| `DEP-015` | **Workers plan tier** (`D-23`, `OQ-018`) | CPU budget and D1 limits differ by an order of magnitude between Free and Paid | Decide before performance work in P5; `RISK-016` |
+| `DEP-016` | **Admin template licence verification** (`D-09`, `OQ-020`) — carries forward `DEP-006` scope | Admin UI cannot ship on an unverified licence | Complete §7.10 gate in P3 |
 
 ### 16.2 Risks
 
 | ID | Risk | Impact | Mitigation |
 |---|---|---|---|
-| `RISK-001` | **Turso vendor lock-in** | Migration cost if the vendor changes terms or pricing | Adapter/repository layer; SQLite-compatible schema; documented export path; no vendor-specific SQL in business logic |
-| `RISK-002` | **Free-tier limits** on database or storage (rows, bandwidth, storage, requests) | Site degrades or stops at traffic spikes | Monitor usage; document limits as "to be verified"; owner approves a paid tier before launch if needed |
-| `RISK-003` | Local SQLite file accidentally used in production | Silent data loss on every deploy | Hard rule in `AGENTS.md`; startup check rejecting `file:` URLs in production; `AC-058` |
-| `RISK-004` | Uploads written to the runtime filesystem | Images vanish after deploy; broken pages | Storage adapter only; no `fs` writes to app directories; `AC-059` |
+| `RISK-001` | **Cloudflare vendor concentration** — runtime, database, storage and CDN from one vendor | Terms, pricing or limit changes affect the whole stack at once | SQL portability (D1 is SQLite, schema is plain SQL); R2 adapter boundary; documented `d1 export` path; no Cloudflare-proprietary SQL in business logic (`RISK-017`) |
+| `RISK-002` | **Free-tier / included-limit ceilings** on Workers requests, CPU, D1 rows, R2 operations and image transformations | Site degrades or stops at a traffic spike; silent cost jump | Monitor usage; treat all limits as "re-verify at implementation"; decide the plan tier deliberately (`D-23`, `RISK-016`) |
+| `RISK-003` | A `file:` database URL or a bundled `.db` reaching production | Silent data loss / writes that vanish per request | Hard rule in `AGENTS.md`; no `file:` URL in application config; `AC-062`, `AC-063` |
+| `RISK-004` | Uploads written to the Worker filesystem (`/tmp` looks writable) | Images vanish when the request ends — and `/tmp` is per-request by design | Storage adapter only; `FR-182`; `AC-063`, `AC-064` |
 | `RISK-005` | **Admin template licence risk** — public repo mistaken for commercial-use permission | Legal exposure and forced rework | Read the `LICENSE` file for every candidate; record findings; no template without a recorded licence decision |
 | `RISK-006` | **Fabricated trust claims** (testimonials, certifications, years, counts) | Reputational and legal harm; misleading advertising | Editorial rule (§6.7); review before launch; no prefilled claims in templates or seeds |
 | `RISK-007` | **Unknown contact details** at build time | Placeholder phone/address published | Treat as blocking for launch; hide unset fields; never invent data |
@@ -1272,24 +1723,50 @@ Given a production build measured with Lighthouse mobile (4× CPU throttle, Slow
 | `RISK-009` | Admin UI leaking into public pages (shared CSS/JS) | Public site looks like a dashboard; performance and brand damage | Separate layouts and style boundaries; audit public bundles for admin code |
 | `RISK-010` | **Scope creep toward e-commerce** (cart, checkout, stock, quotes) | Timeline blowout; architectural churn | Non-goals are explicit (§4.2); any change requires a PRD revision and owner approval |
 
+**v0.2 additions (`RISK-011`–`RISK-018`).**
+
+| ID | Risk | Impact | Mitigation |
+|---|---|---|---|
+| `RISK-011` | **Workers CPU limit exceeded** — SSR, hashing, uploads or large payload parsing blow the Free-tier budget documented in §12.2 | 1102 errors in production; login or publishing fails intermittently | Treat CPU as a design constraint (`NFR-042`); profile every path; decide the plan tier early (`D-23`); move heavy work off the request path |
+| `RISK-012` | **D1 has no interactive transactions** and a multi-step admin write is implemented as separate awaits | Partial writes: a published record with no audit row, or a slug change with no redirect | Mandatory `batch()` for atomic writes (`FR-185`); fault-injection test (`AC-069`); code review checklist |
+| `RISK-013` | **R2 public access / custom domain not configured**, or the domain is not in the same Cloudflare account | Media unreachable in production, or shipped from `r2.dev` and needing migration later | Owner confirms zone ownership (`DEP-011`); custom domain is a hard requirement (`FR-188`); `AC-064` |
+| `RISK-014` | **Next.js-on-Workers adapter risk** — *not* a generic "beta tooling" risk. Two distinct exposures: (a) **adapter feature-coverage drift** — `vinext` is a beta reimplementation of the Next.js API surface, so a Next.js minor release can ship a feature the adapter does not cover (`next/*` imports are only *"mostly supported"*, image optimisation only *"partially supported"*); (b) **build breakage on Next.js upgrades** — the adapter's build step is version-coupled, so a routine `next` bump can fail the deploy rather than degrade gracefully | A feature the CMS needs is unavailable in the adapter, or an upgrade blocks shipping; work lands on a solo operator with no in-house engineering | Framework recommendation avoids this path entirely — Astro is Proposed (§12.9). If the owner overrides and picks candidate C: pin `next` exactly, run `vinext check` in CI on every bump, and record a documented exit path back to the runner-up before writing application code |
+| `RISK-015` | **Cloudflare account / zone ownership ambiguity** | Nobody can attach the domain, rotate secrets, or restore a backup at 2 a.m. | Named owner + documented access; owner-held credentials; `OQ-017` |
+| `RISK-016` | **Free-tier CPU ceiling** chosen by default and discovered late — the figure is in the §12.2 limits table | The whole admin (hashing, rich text save) may be infeasible on Free | Decide `D-23` before P2; benchmark hashing on the real tier (`OQ-015`) |
+| `RISK-017` | **Vendor lock-in** (see `RISK-001`) — exit cost grows quietly | Migration becomes impractical after data and URLs accumulate | Adapter boundaries; plain-SQL schema; export cadence (`FR-197`); URLs stored as keys + base, not hard-coded hostnames |
+| `RISK-018` | **Image-optimisation cost** — Cloudflare Images charges per transformation, and the Free plan caps unique transformations | Bill shock or broken images once the cap is hit | Decide `D-19` before building the pipeline; pre-generate variants where possible; monitor transformation counts (`NFR-060`) |
+
 ---
 
 ## 17. Open questions requiring owner approval
 
 | ID | Question | Why it matters | Default assumption if unanswered |
 |---|---|---|---|
-| `OQ-001` | Approve **Next.js (App Router)** as the framework? | Locks implementation approach and hosting behaviour | Proceed with Next.js as documented, treated as provisional until confirmed |
-| `OQ-002` | Approve **Turso (libSQL)** as the production database? | Vendor dependency, free-tier limits, cost at scale | Build against the libSQL adapter; do not deploy production data until approved |
-| `OQ-003` | Which **media storage provider** (Vercel Blob / Cloudinary / R2 / Supabase)? | Upload flow, cost, CDN behaviour | Implement the adapter; use a development-only local driver, never in production |
+| ~~`OQ-001`~~ | ~~Approve Next.js (App Router) as the framework?~~ — **Resolved / Superseded 2026-10-26.** The question was tied to the Vercel target and is replaced by `OQ-013`, which re-opens the framework on the merits. Next.js is now one of three evaluated candidates and is **not** selected (§12.9). | — | — |
+| ~~`OQ-002`~~ | ~~Approve Turso (libSQL) as the production database?~~ — **Resolved 2026-10-26.** Owner decided on **Cloudflare D1**; recorded as `D-06` **Confirmed** and registered as superseded in §13.7. | — | — |
+| ~~`OQ-003`~~ | ~~Which media storage provider?~~ — **Resolved 2026-10-26.** Owner decided on **Cloudflare R2**; recorded as `D-08` **Confirmed**. Remaining sub-decisions (custom domain, image optimisation) are `OQ-014` and `OQ-017`. | — | — |
 | `OQ-004` | Approve **Auth.js** or a vetted session library, vs. a hand-rolled session layer? | Security risk surface and maintenance | Prefer the vetted library; if unanswered, a hand-rolled implementation must satisfy §11 in full |
 | `OQ-005` | Store rich text as **sanitised HTML** or **structured JSON**? | Editor choice, rendering, migration flexibility | Sanitised HTML with a strict allowlist, re-sanitised at render |
 | `OQ-006` | Which **admin template** after licence verification? | Legal exposure and design consistency | Build a minimal custom admin shell with no third-party template |
-| `OQ-007` | Preferred **Vercel region** (e.g. Singapore) and **domain name**? | Latency, canonical URLs, SEO | Singapore region; use the Vercel preview domain until a domain is provided |
+| ~~`OQ-007`~~ | ~~Preferred Vercel region and domain name?~~ — **Resolved / Superseded 2026-10-26.** The Vercel region question no longer applies. Replaced by `OQ-017` (domain, zone, account) and `OQ-018` (D1 primary location / Workers placement). | — | — |
 | `OQ-008` | Approve **Kebijakan Privasi** wording; is counsel review required? | Legal accuracy and UU PDP context | Publish a plain-language draft marked for owner review; make no compliance claims |
 | `OQ-009` | Is the **admin UI language** Bahasa Indonesia? | Usability for the non-technical owner | Bahasa Indonesia for all admin labels |
 | `OQ-010` | Enable the **contact form**, or WhatsApp-only? | Scope, spam handling, data storage, privacy obligations | Contact form enabled and stored; disable if the owner prefers WhatsApp-only |
 | `OQ-011` | Approve **backup retention** and the RPO/RTO targets in `NFR-008`? | Data-loss exposure | Daily logical backup, 7-day retention; RPO 24 h / RTO 4 h |
 | `OQ-012` | Confirm **no analytics** in MVP, or approve a privacy-friendly option later? | Scope and privacy policy content | No analytics in MVP |
+
+**v0.2 additions (`OQ-013`–`OQ-020`).** None of these is answered. They are the blockers between this document and implementation (§18.1).
+
+| ID | Question | Why it matters | Default if unanswered |
+|---|---|---|---|
+| `OQ-013` | **Framework sign-off:** approve **Astro + `@astrojs/cloudflare`** (§12.9), or choose the runner-up **React Router v8**? | Everything downstream — scaffold, routing, admin shell, template compatibility — depends on it | **Blocked.** Do not scaffold either. No default is assumed |
+| `OQ-014` | **Image optimisation approach:** Cloudflare Images/Resizing (paid tiers), client-side pre-resize, external pre-generation, or ship originals? | Cost, CPU, upload UX, `srcset` strategy | Pre-generated variants only; no on-the-fly transformation (`D-19`) |
+| `OQ-015` | **Password hashing + admin access model:** PBKDF2-SHA256 vs Argon2id vs Workers scrypt; and is **Cloudflare Access (Zero Trust)** required in front of `/admin`, and at what tier/cost? | Auth security and feasibility under the CPU budget; cost of an extra gate | PBKDF2-SHA256 benchmarked first; app login only, Access deferred (`D-21`, `D-22`) |
+| `OQ-016` | Is a **KV namespace** permitted as a session/rate-limit store, or must D1 carry it? | KV is outside the approved scope but is the conventional Workers session store | **D1 only.** KV requires explicit approval; do not add it |
+| `OQ-017` | **Cloudflare account, zone and domain:** who owns the account, is the domain an active zone in it, and what hostname serves R2 media? | R2 custom domain requires the zone in the same account; DNS and TLS depend on it | Blocked for production delivery (`DEP-011`, `RISK-013`) |
+| `OQ-018` | **Workers plan tier** (Free vs Paid) and **D1 primary location**? | CPU budget and D1 capacity differ by orders of magnitude between tiers (documented in §12.2 and §13.2.1); latency to Indonesia | Assume **Free** for early development only; must be decided before performance work |
+| `OQ-019` | **D1 backup retention** and confirmation of the RPO ≤ 24 h / RTO ≤ 4 h *targets*? | Data-loss exposure; Time Travel window is 30 days Paid / 7 days Free | Daily export to R2, 7-day retention, targets accepted as targets only |
+| `OQ-020` | **Admin template choice** after the §7.10 licence gate, and the **ORM/query layer** (Drizzle vs prepared statements)? | Legal exposure, design consistency, migration tooling | Minimal custom admin shell; plain prepared statements with `batch()` |
 
 ---
 
@@ -1299,13 +1776,33 @@ Given a production build measured with Lighthouse mobile (4× CPU throttle, Slow
 
 | Phase | Name | Goal | Exit criteria |
 |---|---|---|---|
-| **P0** | Documentation | Agree scope, stack, persistence, and open questions | This PRD and `AGENTS.md` approved; `OQ-001`–`OQ-005` answered; repository initialised with `.gitignore` |
-| **P1** | Foundation | Runnable skeleton with the correct rendering strategy | App builds and runs; TypeScript strict; layout and theme tokens; `id-ID`/`Asia/Jakarta` constants; error and 404 shells; CI typecheck and lint |
-| **P2** | Auth + DB + media | Secure login and durable persistence | Schema migrated; admin provisioning works; login/session/CSRF/rate-limit verified (`AC-026`–`AC-032`, `AC-034`); upload adapter works against the approved provider; `AC-058`, `AC-059` pass |
+| **P0** | Documentation & architecture approval | Agree scope, platform, framework, persistence, and the open questions that gate implementation | **This PRD (v0.2) and `AGENTS.md` reviewed by the owner, with every gate item in §18.1.1 satisfied.** Note: approval of the *document* is not approval to build — the gate is separate |
+| **P1** | Foundation | Runnable skeleton on the confirmed platform | Worker runs under `wrangler dev` and deploys (`AC-061`); TypeScript strict; layout and theme tokens; `id-ID`/`Asia/Jakarta` constants; error and 404 shells; CI typecheck and lint; preview environment isolated (`AC-073`) |
+| **P2** | Auth + DB + media | Secure login and durable persistence on D1 + R2 | Schema migrated from empty and idempotent (`AC-062`); data survives redeploy (`AC-063`); login/session/CSRF/rate-limit verified (`AC-026`–`AC-032`, `AC-034`, `AC-067`); R2 upload pipeline with validation (`AC-064`, `AC-066`); batched writes (`AC-069`); password algorithm benchmarked and recorded |
 | **P3** | CMS | Owner can manage all content | Products, articles, media library, settings, branding, SEO fields, and publishing workflow complete; `AC-033`, `AC-035`–`AC-048`, `AC-056`, `AC-057` pass |
 | **P4** | Public pages | All public routes live from CMS content | Every page in §5.1 renders from the CMS; filters, inquiry CTAs, contact form; `AC-001`–`AC-025` pass |
 | **P5** | SEO / performance / security hardening | Discoverable, fast, safe | Metadata, canonical, OG, sitemap, robots, JSON-LD, redirects, noindex rules; Lighthouse targets met; security headers enforced; `AC-036`, `AC-049`–`AC-055`, `AC-060` pass |
-| **P6** | Launch | Production readiness | Domain and DNS; production env vars; backup verified and restore rehearsed; monitoring; owner content entered; final manual a11y and responsive pass; `OQ-006`–`OQ-012` closed |
+| **P6** | Launch | Production readiness | Domain and DNS on Cloudflare; R2 custom domain live; production secrets set via `wrangler secret`; backup verified and restore rehearsed (`AC-074`); monitoring on (`AC-078`); owner content entered; final manual a11y and responsive pass; cost model documented (`AC-077`); remaining `OQ`s closed |
+
+#### 18.1.1 Phase 0 gate — implementation may not start until **all** of these are true
+
+This is the gate referenced throughout `AGENTS.md`. It is deliberately hard: the platform changed once already, and a second pivot after code exists is far more expensive than a delay now.
+
+| # | Gate item | Owner of the item | Status |
+|---|---|---|---|
+| G0-1 | **Framework signed off** — `OQ-013` answered in writing (Astro, or the React Router runner-up) | Owner | ☐ Not met |
+| G0-2 | **Cloudflare account ready** and the person with admin access is named | Owner | ☐ Not met |
+| G0-3 | **Zone / domain ready** — the domain is an active zone in that account | Owner | ☐ Not met |
+| G0-4 | **D1 provisioned by the owner** — production and preview databases created, IDs recorded | Owner | ☐ Not met |
+| G0-5 | **R2 provisioned by the owner** — bucket created, custom domain attached or hostname agreed | Owner | ☐ Not met |
+| G0-6 | **Image strategy decided** — `OQ-014` resolved | Owner + implementer | ☐ Not met |
+| G0-7 | **Password strategy decided** — `OQ-015` resolved after a benchmark on the real runtime | Implementer proposes, owner approves | ☐ Not met |
+| G0-8 | **Workers plan tier decided** — `OQ-018` | Owner | ☐ Not met |
+| G0-9 | **PRD v0.2 approved as a document** (status moves off "Draft — awaiting owner approval") | Owner | ☐ Not met |
+
+The agent's obligation is simple: **if any row above is unchecked, do not scaffold, do not install a dependency, and do not provision a resource.** Ask, then wait.
+
+Note on ownership: G0-2 through G0-5 are marked "by the owner" on purpose. Creating Cloudflare resources is an owner action with billing and access consequences; an agent must not create accounts, zones, databases or buckets on the owner's behalf.
 
 ### 18.2 Later-phase backlog (explicitly not in MVP)
 
@@ -1322,8 +1819,8 @@ Given a production build measured with Lighthouse mobile (4× CPU throttle, Slow
 
 ### 18.3 Definition of done (per phase)
 
-A phase is done only when: its requirements are implemented; the mapped `AC-###` are verified; typecheck and lint pass; no new unresolved security finding exists; affected documentation (`PRD.md`, `AGENTS.md`) is updated; and no secret, generated media, or database file is committed.
+A phase is done only when: its requirements are implemented; the mapped `AC-###` are verified; typecheck and lint pass; no new unresolved security finding exists; affected documentation (`PRD.md`, `AGENTS.md`) is updated; and no secret, generated media, or database file is committed. For P1 onward, additionally: the change runs on the Workers runtime (not Node), no new binding or Cloudflare resource was added without approval, and any new dependency is recorded as Workers-compatible.
 
 ---
 
-*End of PRD v0.1 — awaiting owner approval.*
+*End of PRD v0.2 — awaiting owner approval. Nothing in this document authorises implementation until the §18.1.1 gate is met.*
